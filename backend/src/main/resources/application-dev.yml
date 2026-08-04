@@ -51,12 +51,12 @@ spring:
           admin: true
 
   # Initialisation des données
+  # Note: Les devises sont chargées programmatiquement par InitialisateurDevises
+  # et les règles par ServiceRegle via leurs fichiers JSON respectifs.
+  # Ne pas utiliser spring.sql.init pour des fichiers non-SQL.
   sql:
     init:
-      mode: always
-      data-locations: classpath:devises.json
-      encoding: UTF-8
-      continue-on-error: false
+      mode: never
 
   # Jackson — Pretty print en développement
   jackson:
