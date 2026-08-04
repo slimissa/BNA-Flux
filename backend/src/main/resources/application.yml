@@ -1,0 +1,214 @@
+# ============================================================
+# BNA-FLUX — Configuration principale
+# ============================================================
+# Ce fichier contient la configuration de base partagée par
+# tous les profils (dev, docker, prod).
+# Les profils surchargent uniquement les propriétés spécifiques
+# à leur environnement.
+# ============================================================
+
+# Application
+spring:
+  application:
+    name: bna-flux
+    version: 1.0.0-SNAPSHOT
+    description: Système de surveillance des transactions bancaires en temps réel
+
+  # Profils actifs par défaut
+  profiles:
+    active: dev
+
+  # Jackson — Sérialisation JSON
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      indent-output: false
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
+      accept-float-as-int: false
+    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd'T'HH:mm:ssXXX
+    time-zone: Africa/Tunis
+    locale: fr_FR
+    mapper:
+      accept-case-insensitive-enums: true
+
+  # JPA / Hibernate
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+        use_sql_comments: false
+        jdbc:
+          batch_size: 25
+          fetch_size: 50
+        order_inserts: true
+        order_updates: true
+        generate_statistics: false
+    show-sql: false
+
+  # Messages de validation — i18n
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+
+  # Gestion des ressources asynchrones
+  threads:
+    virtual:
+      enabled: true
+
+  # Taille maximale des fichiers uploadés
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# Serveur
+server:
+  port: 8080
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+  forward-headers-strategy: framework
+
+# Actuator — Health checks et métriques
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: when-authorized
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: false
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.bna.flux: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.hibernate: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/bna-flux.log
+    max-size: 10MB
+    max-history: 30
+
+# Documentation OpenAPI / Swagger
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operationsSorter: method
+    tagsSorter: alpha
+    display-request-duration: true
+  show-actuator: false
+  default-produces-media-type: application/json
+  writer-with-default-pretty-printer: false
+
+# Configuration métier BNA-FLUX
+bna:
+  # Pipeline de traitement des transactions
+  pipeline:
+    active: true
+    timeout-seconds: 30
+    retry-max: 0
+
+  # Moteur de règles
+  regles:
+    cache-expressions: true
+    cache-size: 200
+    evaluation-timeout-ms: 5000
+
+  # Validation RIB Tunisien
+  rib:
+    longueur: 20
+    longueur-code-banque: 2
+    longueur-code-agence: 3
+    longueur-compte: 13
+    longueur-cle: 2
+    modulo: 97
+
+  # 
+  # Notation du risque
+  notation:
+    seuil-accepte: 30
+    seuil-surveille: 70
+    score-max: 100
+
+  # Disjoncteur (Circuit Breaker)
+  disjoncteur:
+    seuil-echecs: 3
+    fenetre-heures: 24
+    delai-ouverture-minutes: 60
+    actif: true
+    types-cibles:
+      - COMPTE_SOURCE
+      - COMPTE_DESTINATION
+      - AGENCE
+      - CANAL
+
+  # Alertes
+  alertes:
+    niveaux:
+      - FAIBLE
+      - MOYEN
+      - ELEVE
+      - CRITIQUE
+    email:
+      seuil-immediat: CRITIQUE
+      lot-intervalle-minutes: 15
+
+  # Devises prises en charge
+  devises:
+    fichier: devises.json
+    chemin: classpath:devises.json
+
+  # Piste d'audit
+  audit:
+    algorithme-hash: SHA-256
+    actif: true
+    verification-active: true
+
+  # Sécurité JWT
+  securite:
+    jwt:
+      duree-acces-minutes: 60
+      duree-rafraichissement-heures: 24
+      emetteur: bna-flux
+      audience: bna-agences
+
+# Configuration des tâches planifiées
+scheduling:
+  enabled: true
+  pool:
+    size: 4

@@ -1,0 +1,180 @@
+# ============================================================
+# BNA-FLUX — Configuration du profil Développement
+# ============================================================
+# Profil actif par défaut.
+# Utilise H2 en mémoire pour des démarrages instantanés.
+# Emails redirigés vers la console.
+# Logs détaillés pour le débogage.
+# ============================================================
+
+spring:
+  # Base de données H2 (développement)
+  datasource:
+    url: jdbc:h2:mem:bnaflux;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
+      pool-name: BnaFluxH2Pool
+      auto-commit: true
+
+  # JPA / Hibernate — Mode développement
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        use_sql_comments: true
+        show_sql: false
+        hbm2ddl:
+          auto: create-drop
+    show-sql: false
+    defer-datasource-initialization: true
+
+  # H2 Console (accessible en développement)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+        trace: false
+      config:
+        access:
+          admin: true
+
+  # Initialisation des données
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:devises.json
+      encoding: UTF-8
+      continue-on-error: false
+
+  # Jackson — Pretty print en développement
+  jackson:
+    serialization:
+      indent-output: true
+
+# Logging détaillé pour le développement
+logging:
+  level:
+    root: INFO
+    com.bna.flux: DEBUG
+    com.bna.flux.service: DEBUG
+    com.bna.flux.service.pipeline: DEBUG
+    com.bna.flux.controller: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.boot.autoconfigure: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %highlight(%-5level) [%thread] %cyan(%logger{36}) - %msg%n"
+
+# Actuator — Tout exposer en développement
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+# Documentation OpenAPI — Toujours active
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /api-docs/swagger-config
+    urls:
+      - url: /api-docs
+        name: BNA-FLUX API
+
+# Configuration métier — Développement
+bna:
+  # Pipeline — Traitement synchrone en développement
+  pipeline:
+    active: true
+    timeout-seconds: 30
+    retry-max: 0
+    mode-synchrone: true
+
+  # Règles — Cache activé
+  regles:
+    cache-expressions: true
+    cache-size: 200
+    evaluation-timeout-ms: 5000
+
+  # Disjoncteur — Fenêtre courte pour tests
+  disjoncteur:
+    seuil-echecs: 3
+    fenetre-heures: 24
+    delai-ouverture-minutes: 2
+    actif: true
+
+  # Alertes — Email console (pas de SMTP)
+  alertes:
+    email:
+      actif: false
+      mode-console: true
+      seuil-immediat: CRITIQUE
+      lot-intervalle-minutes: 15
+
+  # Audit — Actif avec logs verbeux
+  audit:
+    algorithme-hash: SHA-256
+    actif: true
+    verification-active: true
+    log-verbose: true
+
+  # Sécurité JWT — Clé de développement
+  securite:
+    jwt:
+      secret: bna-flux-dev-secret-key-2026-ne-pas-utiliser-en-production-car-trop-courte-et-faible
+      duree-acces-minutes: 60
+      duree-rafraichissement-heures: 24
+      emetteur: bna-flux-dev
+      audience: bna-agences-dev
+
+# Configuration de l'application — Développement
+app:
+  cors:
+    allowed-origins:
+      - http://localhost:4200
+      - http://localhost:8080
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+      - OPTIONS
+    allowed-headers:
+      - Authorization
+      - Content-Type
+      - Accept
+      - Origin
+      - X-Requested-With
+    max-age: 3600
+
+  initialisation:
+    devises:
+      charger-au-demarrage: true
+      fichier: classpath:devises.json
+    regles:
+      charger-au-demarrage: true
+      fichier: classpath:regles-par-defaut.json
+    utilisateurs:
+      charger-au-demarrage: true

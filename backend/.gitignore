@@ -1,0 +1,32 @@
+# Maven
+target/
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Logs
+logs/
+*.log
+
+# Node
+node_modules/
+dist/
+
+# Angular
+*.ngsummary.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+.env
+
+# Sensitive
+application-prod.yml
+*.jks
+*.p12
