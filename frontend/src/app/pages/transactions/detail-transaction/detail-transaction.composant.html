@@ -1,0 +1,199 @@
+<!-- Fichier: pages/transactions/detail-transaction/detail-transaction.composant.html -->
+
+<div class="detail-transaction">
+  <!-- En-tête -->
+  <header class="dt-header">
+    <button mat-icon-button routerLink="/transactions" matTooltip="Retour à la liste">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    @if (transaction(); as t) {
+      <h1 class="dt-titre">Transaction {{ t.referenceTransaction }}</h1>
+      <span
+        class="dt-statut-badge"
+        [style.background]="COULEURS_STATUTS[t.statutTransaction] + '18'"
+        [style.color]="COULEURS_STATUTS[t.statutTransaction]"
+        [style.borderColor]="COULEURS_STATUTS[t.statutTransaction] + '40'"
+      >
+        <i [class]="ICONES_STATUTS[t.statutTransaction]"></i>
+        {{ LABELS_STATUTS[t.statutTransaction] }}
+      </span>
+    }
+  </header>
+
+  @if (chargement()) {
+    <div class="dt-chargement"><mat-spinner diameter="48" strokeWidth="3"></mat-spinner><p>Chargement de la transaction...</p></div>
+  } @else if (erreur()) {
+    <div class="dt-erreur"><i class="fa-solid fa-circle-exclamation"></i> {{ erreur() }}<a routerLink="/transactions">Retour à la liste</a></div>
+  } @else if (transaction(); as t) {
+    <!-- Score de risque -->
+    <mat-card class="dt-score-card">
+      <div class="dt-score-header">
+        <h3><i class="fa-solid fa-gauge-high"></i> Score de risque</h3>
+        <span class="dt-score-valeur" [style.color]="getCouleurScore(t.scoreRisque)">{{ t.scoreRisque | number:'1.0-0' }} / 100</span>
+      </div>
+      <div class="dt-score-barre-bg">
+        <div class="dt-score-barre-fill" [style.width.%]="getScorePourcentage(t.scoreRisque)" [style.background]="getCouleurScore(t.scoreRisque)"></div>
+      </div>
+      <div class="dt-score-zones">
+        <span class="zone-accepte">0 – Accepté</span><span class="zone-surveille">30 – Surveillé</span><span class="zone-bloque">70 – Bloqué</span>
+      </div>
+    </mat-card>
+
+    <!-- Détails -->
+    <div class="dt-grid">
+      <mat-card class="dt-section">
+        <h3><i class="fa-solid fa-circle-info"></i> Informations générales</h3>
+        <div class="dt-lignes">
+          <div class="dt-ligne"><span class="dt-etiq">Référence</span><span class="dt-val mono">{{ t.referenceTransaction }}</span></div>
+          <div class="dt-ligne"><span class="dt-etiq">Date d'exécution</span><span class="dt-val">{{ t.dateTransaction | date:'dd/MM/yyyy à HH:mm:ss' }}</span></div>
+          <div class="dt-ligne"><span class="dt-etiq">Date de traitement</span><span class="dt-val">{{ t.traiteLe ? (t.traiteLe | date:'dd/MM/yyyy à HH:mm:ss') : 'En attente' }}</span></div>
+          <div class="dt-ligne"><span class="dt-etiq">Type</span><span class="dt-val type-badge"><i [class]="ICONES_TYPES_TRANSACTION[t.typeTransaction]"></i> {{ LABELS_TYPES_TRANSACTION[t.typeTransaction] }}</span></div>
+          <div class="dt-ligne"><span class="dt-etiq">Canal</span><span class="dt-val"><i [class]="ICONES_CANAUX[t.canal]"></i> {{ LABELS_CANAUX[t.canal] }}</span></div>
+          @if (t.description) { <div class="dt-ligne"><span class="dt-etiq">Description</span><span class="dt-val">{{ t.description }}</span></div> }
+        </div>
+      </mat-card>
+
+      <mat-card class="dt-section">
+        <h3><i class="fa-solid fa-building-columns"></i> Comptes</h3>
+        <div class="dt-lignes">
+          <div class="dt-ligne">
+            <span class="dt-etiq">RIB Source</span>
+            <span class="dt-val">
+              <span class="rib-texte">{{ formaterRib(t.ribSource) }}</span>
+              <span class="rib-codes">Banque: {{ getCodeBanque(t.ribSource) }} · Agence: {{ getCodeAgence(t.ribSource) }}</span>
+            </span>
+          </div>
+          <div class="dt-ligne">
+            <span class="dt-etiq">RIB Destination</span>
+            <span class="dt-val">
+              <span class="rib-texte">{{ formaterRib(t.ribDestination) }}</span>
+              <span class="rib-codes">Banque: {{ getCodeBanque(t.ribDestination) }} · Agence: {{ getCodeAgence(t.ribDestination) }}</span>
+            </span>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="dt-section">
+        <h3><i class="fa-solid fa-coins"></i> Montant</h3>
+        <div class="dt-montant-container">
+          <div class="dt-montant-valeur">
+            <span class="montant-symbole">{{ t.symboleDevise || t.codeDevise }}</span>
+            <span class="montant-nombre">{{ t.montant | number:'1.3-3' }}</span>
+          </div>
+          <span class="montant-devise-nom">{{ t.nomDevise || t.codeDevise }}</span>
+        </div>
+      </mat-card>
+
+      @if (t.paysOrigine || t.categorieContrepartie) {
+        <mat-card class="dt-section">
+          <h3><i class="fa-solid fa-globe"></i> Enrichissement</h3>
+          <div class="dt-lignes">
+            @if (t.paysOrigine) { <div class="dt-ligne"><span class="dt-etiq">Pays d'origine</span><span class="dt-val">{{ t.paysOrigine }}</span></div> }
+            @if (t.categorieContrepartie) { <div class="dt-ligne"><span class="dt-etiq">Contrepartie</span><span class="dt-val">{{ t.categorieContrepartie }}</span></div> }
+          </div>
+        </mat-card>
+      }
+
+      @if (t.motif) {
+        <mat-card class="dt-section dt-section-motif">
+          <h3><i class="fa-solid fa-clipboard-list"></i> Motif</h3>
+          <p class="dt-motif-texte">{{ t.motif }}</p>
+        </mat-card>
+      }
+    </div>
+
+    <!-- Onglets : Piste d'audit + Alertes -->
+    <mat-card class="dt-onglets-card">
+      <mat-tab-group (selectedIndexChange)="onChangementOnglet($event)" [selectedIndex]="ongletActif()">
+        <!-- Piste d'audit -->
+        <mat-tab label="Piste d'audit">
+          <div class="dt-tab-content">
+            <div class="dt-tab-header">
+              <span>{{ pisteAudit().length }} entrée(s)</span>
+              <button mat-stroked-button (click)="verifierIntegrite()" [disabled]="verificationEnCours()">
+                <i class="fa-solid fa-fingerprint"></i>
+                {{ verificationEnCours() ? 'Vérification...' : 'Vérifier l\'intégrité' }}
+              </button>
+              @if (!pisteAudit().length && !chargementAudit()) {
+                <button mat-button (click)="chargerPisteAudit()"><i class="fa-solid fa-rotate"></i> Charger</button>
+              }
+            </div>
+
+            @if (verification()) {
+              <div class="dt-verification" [class.verif-ok]="verification()!.chaineIntacte" [class.verif-ko]="!verification()!.chaineIntacte">
+                <i class="fa-solid" [class.fa-circle-check]="verification()!.chaineIntacte" [class.fa-circle-xmark]="!verification()!.chaineIntacte"></i>
+                <span>{{ verification()!.messageErreur || 'Chaîne intacte — ' + verification()!.nombreEntrees + ' entrée(s) vérifiée(s)' }}</span>
+                <span class="verif-duree">{{ verification()!.dureeVerificationMs }}ms</span>
+              </div>
+            }
+
+            @if (chargementAudit()) {
+              <div class="dt-tab-loader"><mat-spinner diameter="24"></mat-spinner></div>
+            } @else {
+              <div class="dt-timeline">
+                @for (entree of pisteAudit(); track entree.id; let i = $index) {
+                  <div class="timeline-item">
+                    <div class="timeline-point" [style.background]="i === pisteAudit().length - 1 ? 'var(--color-primary)' : 'var(--color-text-tertiary)'">
+                      <i [class]="getEtapeIcone(entree.etape)"></i>
+                    </div>
+                    <div class="timeline-contenu">
+                      <div class="timeline-header">
+                        <span class="timeline-etape">{{ getEtapeLibelle(entree.etape) }}</span>
+                        <span class="timeline-action">{{ entree.action }}</span>
+                        <span class="timeline-date">{{ entree.horodatage | date:'HH:mm:ss.SSS' }}</span>
+                      </div>
+                      <div class="timeline-hash">
+                        <span class="hash-label">Hash:</span>
+                        <code>{{ entree.hashCourant?.substring(0, 16) }}...</code>
+                      </div>
+                    </div>
+                  </div>
+                }
+                @if (!pisteAudit().length) { <p class="dt-tab-vide">Aucune entrée d'audit chargée</p> }
+              </div>
+            }
+          </div>
+        </mat-tab>
+
+        <!-- Alertes -->
+        <mat-tab label="Alertes">
+          <div class="dt-tab-content">
+            <div class="dt-tab-header">
+              <span>{{ alertes().length }} alerte(s)</span>
+              @if (!alertes().length && !chargementAlertes()) {
+                <button mat-button (click)="chargerAlertes()"><i class="fa-solid fa-rotate"></i> Charger</button>
+              }
+            </div>
+            @if (chargementAlertes()) {
+              <div class="dt-tab-loader"><mat-spinner diameter="24"></mat-spinner></div>
+            } @else {
+              @for (alerte of alertes(); track alerte.id) {
+                <div class="alerte-item" [style.borderLeftColor]="COULEURS_NIVEAUX_ALERTE[alerte.niveau]">
+                  <div class="alerte-header">
+                    <span class="alerte-niveau" [style.background]="COULEURS_NIVEAUX_ALERTE[alerte.niveau] + '18'" [style.color]="COULEURS_NIVEAUX_ALERTE[alerte.niveau]">
+                      <i [class]="ICONES_NIVEAUX_ALERTE[alerte.niveau]"></i> {{ LABELS_NIVEAUX_ALERTE[alerte.niveau] }}
+                    </span>
+                    <span class="alerte-regle">{{ alerte.nomRegle || 'Règle #' + alerte.regleId }}</span>
+                    <span class="alerte-date">{{ getDelaiFormatte(alerte.dateCreation) }}</span>
+                  </div>
+                  <p class="alerte-message">{{ alerte.message }}</p>
+                  <div class="alerte-footer">
+                    @if (alerte.acquittee) {
+                      <span class="alerte-acquittee"><i class="fa-solid fa-check"></i> Acquittée par {{ alerte.acquitteePar }} — {{ alerte.acquitteeLe | date:'dd/MM/yyyy HH:mm' }}</span>
+                    } @else {
+                      <span class="alerte-en-attente"><i class="fa-solid fa-clock"></i> En attente d'acquittement</span>
+                    }
+                    @if (alerte.emailEnvoye) {
+                      <span class="alerte-email"><i class="fa-solid fa-envelope"></i> Email envoyé à {{ alerte.emailDestinataire }}</span>
+                    }
+                  </div>
+                </div>
+              }
+              @if (!alertes().length) { <p class="dt-tab-vide">Aucune alerte — Transaction acceptée sans déclenchement de règle</p> }
+            }
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card>
+  }
+</div>

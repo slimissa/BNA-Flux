@@ -1,0 +1,239 @@
+<!-- Fichier: pages/transactions/liste-transactions/liste-transactions.composant.html -->
+
+<div class="liste-transactions">
+  <!-- En-tête -->
+  <header class="lt-header">
+    <div class="lt-header-gauche">
+      <h1><i class="fa-solid fa-money-bill-transfer titre-icone"></i> Transactions</h1>
+      <span class="lt-compteur">{{ totalElements() | number:'1.0-0' }} transaction(s)</span>
+    </div>
+    <button mat-raised-button color="primary" routerLink="/transactions/nouveau" class="lt-bouton-soumettre">
+      <i class="fa-solid fa-plus"></i> Nouvelle transaction
+    </button>
+  </header>
+
+  <!-- Filtres -->
+  <mat-expansion-panel class="lt-filtres-panel" [expanded]="aDesFiltres()">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <i class="fa-solid fa-filter"></i> Filtres
+        @if (aDesFiltres()) {
+          <span class="lt-filtres-badge">{{ filtresActifs().length }}</span>
+        }
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <form [formGroup]="formulaireFiltres" class="lt-filtres-form">
+      <mat-form-field appearance="outline" class="filtre-champ">
+        <mat-label>Statut</mat-label>
+        <mat-select formControlName="statut">
+          <mat-option value="">Tous</mat-option>
+          @for (s of STATUTS; track s) {
+            <mat-option [value]="s">{{ LABELS_STATUTS[s] }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filtre-champ">
+        <mat-label>Devise</mat-label>
+        <mat-select formControlName="codeDevise">
+          <mat-option value="">Toutes</mat-option>
+          @for (d of devises(); track d.code) {
+            <mat-option [value]="d.code">{{ d.code }} — {{ d.nom }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filtre-champ">
+        <mat-label>Canal</mat-label>
+        <mat-select formControlName="canal">
+          <mat-option value="">Tous</mat-option>
+          @for (c of CANAUX; track c) {
+            <mat-option [value]="c">{{ LABELS_CANAUX[c] }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filtre-champ">
+        <mat-label>Type</mat-label>
+        <mat-select formControlName="typeTransaction">
+          <mat-option value="">Tous</mat-option>
+          @for (t of TYPES_TRANSACTION; track t) {
+            <mat-option [value]="t">{{ LABELS_TYPES_TRANSACTION[t] }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filtre-champ">
+        <mat-label>Montant min</mat-label>
+        <input matInput type="number" formControlName="minMontant" placeholder="0" />
+        <span matTextSuffix>TND</span>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filtre-champ">
+        <mat-label>Montant max</mat-label>
+        <input matInput type="number" formControlName="maxMontant" placeholder="100000" />
+        <span matTextSuffix>TND</span>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filtre-champ">
+        <mat-label>Date début</mat-label>
+        <input matInput [matDatepicker]="pickerDebut" formControlName="dateDebut" />
+        <mat-datepicker-toggle matSuffix [for]="pickerDebut"></mat-datepicker-toggle>
+        <mat-datepicker #pickerDebut></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filtre-champ">
+        <mat-label>Date fin</mat-label>
+        <input matInput [matDatepicker]="pickerFin" formControlName="dateFin" />
+        <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
+        <mat-datepicker #pickerFin></mat-datepicker>
+      </mat-form-field>
+
+      <div class="filtre-actions">
+        <button mat-stroked-button type="button" (click)="effacerFiltres()" [disabled]="!aDesFiltres()">
+          <i class="fa-solid fa-eraser"></i> Effacer
+        </button>
+      </div>
+    </form>
+
+    <!-- Chips des filtres actifs -->
+    @if (aDesFiltres()) {
+      <div class="lt-filtres-chips">
+        @for (filtre of filtresActifs(); track $index) {
+          <mat-chip (removed)="supprimerFiltre(filtre.split(':')[0].toLowerCase())" class="filtre-chip">
+            {{ filtre }}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip>
+        }
+      </div>
+    }
+  </mat-expansion-panel>
+
+  <!-- Tableau -->
+  <mat-card class="lt-tableau">
+    @if (chargement()) {
+      <div class="lt-chargement">
+        <mat-spinner diameter="40" strokeWidth="3"></mat-spinner>
+        <p>Chargement des transactions...</p>
+      </div>
+    } @else if (erreur()) {
+      <div class="lt-erreur">
+        <i class="fa-solid fa-circle-exclamation"></i> {{ erreur() }}
+        <button mat-button (click)="chargerTransactions()">Réessayer</button>
+      </div>
+    } @else if (!transactions().length) {
+      <div class="lt-vide">
+        <i class="fa-solid fa-inbox vide-icone"></i>
+        <h3>Aucune transaction trouvée</h3>
+        <p>Essayez de modifier les filtres ou soumettez une nouvelle transaction.</p>
+      </div>
+    } @else {
+      <div class="lt-tableau-scroll">
+        <table mat-table [dataSource]="transactions()" matSort (matSortChange)="onTri($event)" class="lt-table">
+          <!-- Référence -->
+          <ng-container matColumnDef="referenceTransaction">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Référence</th>
+            <td mat-cell *matCellDef="let t" class="cell-reference">
+              <span class="ref-texte">{{ t.referenceTransaction }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Date -->
+          <ng-container matColumnDef="dateTransaction">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+            <td mat-cell *matCellDef="let t" class="cell-date">
+              <i class="fa-regular fa-clock date-icone"></i>
+              {{ t.dateTransaction | date:'dd/MM/yyyy HH:mm' }}
+            </td>
+          </ng-container>
+
+          <!-- Type -->
+          <ng-container matColumnDef="typeTransaction">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let t" class="cell-type">
+              <span class="type-badge" [style.background]="'var(--color-primary-bg)'" [style.color]="'var(--color-primary)'">
+                <i [class]="ICONES_TYPES_TRANSACTION[t.typeTransaction]"></i>
+                {{ LABELS_TYPES_TRANSACTION[t.typeTransaction] }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Canal -->
+          <ng-container matColumnDef="canal">
+            <th mat-header-cell *matHeaderCellDef>Canal</th>
+            <td mat-cell *matCellDef="let t">
+              <i [class]="ICONES_CANAUX[t.canal]" class="cell-canal-icone"></i>
+              {{ LABELS_CANAUX[t.canal] }}
+            </td>
+          </ng-container>
+
+          <!-- Montant -->
+          <ng-container matColumnDef="montant">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Montant</th>
+            <td mat-cell *matCellDef="let t" class="cell-montant">
+              <span class="montant-texte">{{ formaterMontant(t.montant, t.codeDevise) }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Statut -->
+          <ng-container matColumnDef="statutTransaction">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Statut</th>
+            <td mat-cell *matCellDef="let t">
+              <span
+                class="statut-badge"
+                [style.background]="COULEURS_STATUTS[t.statutTransaction] + '18'"
+                [style.color]="COULEURS_STATUTS[t.statutTransaction]"
+                [style.borderColor]="COULEURS_STATUTS[t.statutTransaction] + '40'"
+              >
+                <i [class]="ICONES_STATUTS[t.statutTransaction]"></i>
+                {{ LABELS_STATUTS[t.statutTransaction] }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Score -->
+          <ng-container matColumnDef="scoreRisque">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Score</th>
+            <td mat-cell *matCellDef="let t" class="cell-score">
+              <div class="score-barre">
+                <div
+                  class="score-remplissage"
+                  [style.width]="getLargeurScore(t.scoreRisque)"
+                  [style.background]="getCouleurScore(t.scoreRisque)"
+                ></div>
+              </div>
+              <span class="score-texte" [style.color]="getCouleurScore(t.scoreRisque)">
+                {{ t.scoreRisque | number:'1.0-0' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let t" class="cell-actions">
+              <button mat-icon-button (click)="voirDetail(t.id)" matTooltip="Voir le détail">
+                <mat-icon>visibility</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="colonnesAffichees; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: colonnesAffichees" (click)="voirDetail(row.id)" class="table-row-cliquable"></tr>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <mat-paginator
+        [length]="totalElements()"
+        [pageSize]="taillePage()"
+        [pageIndex]="pageActuelle()"
+        [pageSizeOptions]="[10, 20, 50, 100]"
+        (page)="onChangementPage($event)"
+        showFirstLastButtons
+        class="lt-paginator"
+      ></mat-paginator>
+    }
+  </mat-card>
+</div>

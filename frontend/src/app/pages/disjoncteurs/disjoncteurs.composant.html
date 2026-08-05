@@ -1,0 +1,158 @@
+<!-- Fichier: pages/disjoncteurs/disjoncteurs.composant.html -->
+
+<div class="disjoncteurs-page">
+  <header class="dj-header">
+    <div class="dj-header-gauche">
+      <h1><i class="fa-solid fa-bolt titre-icone"></i> Disjoncteurs</h1>
+      <span>Protection automatique contre les anomalies — {{ disjoncteurs().length }} disjoncteur(s)</span>
+    </div>
+    <button mat-stroked-button (click)="chargerDisjoncteurs()" [disabled]="chargement()">
+      <mat-icon [class.spin]="chargement()">refresh</mat-icon> Rafraîchir
+    </button>
+  </header>
+
+  <!-- Statistiques -->
+  @if (statistiques(); as stats) {
+    <section class="dj-stats animate-fade-in">
+      <mat-card class="dj-stat-card dj-stat-ouverts">
+        <div class="stat-icone"><i class="fa-solid fa-circle-xmark"></i></div>
+        <div class="stat-valeur">{{ stats.ouverts }}</div>
+        <div class="stat-label">Ouverts</div>
+      </mat-card>
+      <mat-card class="dj-stat-card dj-stat-miouverts">
+        <div class="stat-icone"><i class="fa-solid fa-circle-half-stroke"></i></div>
+        <div class="stat-valeur">{{ stats.miOuverts }}</div>
+        <div class="stat-label">Mi-ouverts</div>
+      </mat-card>
+      <mat-card class="dj-stat-card dj-stat-fermes">
+        <div class="stat-icone"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="stat-valeur">{{ stats.fermes }}</div>
+        <div class="stat-label">Fermés</div>
+      </mat-card>
+      <mat-card class="dj-stat-card dj-stat-echecs">
+        <div class="stat-icone"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="stat-valeur">{{ stats.totalEchecs }}</div>
+        <div class="stat-label">Total échecs</div>
+      </mat-card>
+    </section>
+  }
+
+  @if (chargement()) {
+    <div class="dj-loader"><mat-spinner diameter="40"></mat-spinner><p>Chargement des disjoncteurs...</p></div>
+  } @else if (erreur()) {
+    <div class="dj-erreur"><i class="fa-solid fa-circle-exclamation"></i> {{ erreur() }}<button mat-button (click)="chargerDisjoncteurs()">Réessayer</button></div>
+  } @else {
+    <!-- Disjoncteurs ouverts (prioritaires) -->
+    @if (disjoncteursOuverts.length) {
+      <section class="dj-section dj-section-ouverts animate-fade-in">
+        <h2><i class="fa-solid fa-circle-xmark section-icone-ouverte"></i> Disjoncteurs ouverts — Action requise</h2>
+        <div class="dj-grid">
+          @for (d of disjoncteursOuverts; track d.id) {
+            <mat-card class="dj-carte dj-carte-ouverte">
+              <div class="dj-carte-header">
+                <div class="dj-carte-icone" style="background: rgba(231,76,60,0.12); color: #e74c3c;">
+                  <i [class]="ICONES_TYPES_CIBLE[d.typeCible]"></i>
+                </div>
+                <div class="dj-carte-infos">
+                  <h4>{{ d.nom || (LABELS_TYPES_CIBLE[d.typeCible] + ' ' + d.identifiantCible) }}</h4>
+                  <span class="dj-carte-type">{{ LABELS_TYPES_CIBLE[d.typeCible] }}</span>
+                </div>
+                <span class="dj-carte-etat" style="background: rgba(231,76,60,0.12); color: #e74c3c;">OUVERT</span>
+              </div>
+
+              <div class="dj-carte-corps">
+                <div class="dj-carte-echecs">
+                  <div class="echecs-barre-bg"><div class="echecs-barre-fill ouverte" [style.width.%]="getPourcentageEchecs(d)"></div></div>
+                  <span class="echecs-texte">{{ d.nombreEchecs }} / {{ d.seuilEchecs }} échecs</span>
+                </div>
+                <div class="dj-carte-timing">
+                  <i class="fa-regular fa-clock"></i>
+                  <span>Ouvert depuis {{ d.dateDerniereOuverture | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                @if (d.tempsRestantAvantMiOuvert !== undefined && d.tempsRestantAvantMiOuvert !== null) {
+                  <div class="dj-carte-timing">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                    <span>Test automatique dans {{ formaterTempsRestant(d.tempsRestantAvantMiOuvert) }}</span>
+                  </div>
+                }
+              </div>
+
+              @if (authService.peutGererRegles()) {
+                <div class="dj-carte-actions">
+                  <button mat-raised-button color="warn" (click)="reinitialiser(d)" [disabled]="reinitialisationEnCours() === d.id">
+                    @if (reinitialisationEnCours() === d.id) { <mat-spinner diameter="16" strokeWidth="2"></mat-spinner> }
+                    <i class="fa-solid fa-rotate-left"></i> Réinitialiser
+                  </button>
+                </div>
+              }
+            </mat-card>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Disjoncteurs mi-ouverts -->
+    @if (disjoncteursMiOuverts.length) {
+      <section class="dj-section animate-fade-in">
+        <h2><i class="fa-solid fa-circle-half-stroke section-icone-miouverte"></i> Disjoncteurs en test</h2>
+        <div class="dj-grid">
+          @for (d of disjoncteursMiOuverts; track d.id) {
+            <mat-card class="dj-carte dj-carte-miouverte">
+              <div class="dj-carte-header">
+                <div class="dj-carte-icone" style="background: rgba(243,156,18,0.12); color: #f39c12;">
+                  <i [class]="ICONES_TYPES_CIBLE[d.typeCible]"></i>
+                </div>
+                <div class="dj-carte-infos">
+                  <h4>{{ d.nom || (LABELS_TYPES_CIBLE[d.typeCible] + ' ' + d.identifiantCible) }}</h4>
+                  <span class="dj-carte-type">{{ LABELS_TYPES_CIBLE[d.typeCible] }}</span>
+                </div>
+                <span class="dj-carte-etat" style="background: rgba(243,156,18,0.12); color: #f39c12;">MI-OUVERT</span>
+              </div>
+              <div class="dj-carte-corps">
+                <div class="dj-carte-echecs">
+                  <div class="echecs-barre-bg"><div class="echecs-barre-fill miouverte" [style.width.%]="getPourcentageEchecs(d)"></div></div>
+                  <span class="echecs-texte">{{ d.nombreEchecs }} / {{ d.seuilEchecs }} échecs</span>
+                </div>
+                <p class="dj-carte-description">En phase de test — la prochaine transaction déterminera si le circuit peut être refermé.</p>
+              </div>
+            </mat-card>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Disjoncteurs fermés -->
+    @if (disjoncteursFermes.length) {
+      <section class="dj-section animate-fade-in">
+        <h2><i class="fa-solid fa-circle-check section-icone-fermee"></i> Disjoncteurs fermés</h2>
+        <div class="dj-grid dj-grid-fermes">
+          @for (d of disjoncteursFermes; track d.id) {
+            <mat-card class="dj-carte-fermee">
+              <div class="dj-carte-header">
+                <div class="dj-carte-icone" style="background: rgba(46,204,113,0.12); color: #2ecc71;">
+                  <i [class]="ICONES_TYPES_CIBLE[d.typeCible]"></i>
+                </div>
+                <div class="dj-carte-infos">
+                  <h4>{{ d.nom || (LABELS_TYPES_CIBLE[d.typeCible] + ' ' + d.identifiantCible) }}</h4>
+                  <span class="dj-carte-type">{{ LABELS_TYPES_CIBLE[d.typeCible] }}</span>
+                </div>
+                <span class="dj-carte-etat" style="background: rgba(46,204,113,0.12); color: #2ecc71;">FERMÉ</span>
+              </div>
+              <div class="dj-carte-corps">
+                <span class="dj-carte-id">ID: {{ d.identifiantCible }}</span>
+              </div>
+            </mat-card>
+          }
+        </div>
+      </section>
+    }
+
+    @if (!disjoncteurs().length) {
+      <div class="dj-vide">
+        <i class="fa-solid fa-bolt vide-icone"></i>
+        <h3>Aucun disjoncteur</h3>
+        <p>Les disjoncteurs sont créés automatiquement lors du premier incident.</p>
+      </div>
+    }
+  }
+</div>

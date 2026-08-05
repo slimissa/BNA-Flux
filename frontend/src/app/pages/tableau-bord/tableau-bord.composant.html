@@ -1,0 +1,158 @@
+<!-- Fichier: pages/tableau-bord/tableau-bord.composant.html -->
+
+<div class="tableau-bord">
+  <!-- En-tête -->
+  <header class="tb-header">
+    <div class="tb-header-gauche">
+      <h1 class="tb-titre">
+        <i class="fa-solid fa-chart-pie titre-icone"></i>
+        Tableau de Bord
+      </h1>
+      <span class="tb-derniere-maj">
+        <i class="fa-solid fa-clock"></i>
+        Mis à jour {{ tempsEcoule() }} — {{ derniereMaj() | date:'HH:mm:ss' }}
+      </span>
+    </div>
+    <div class="tb-header-droite">
+      @if (aDesAlertes()) {
+        <span class="tb-badge tb-badge-danger pulse">
+          <i class="fa-solid fa-exclamation-triangle"></i>
+          {{ statistiques()?.alertesActionsRequises }} action(s) requise(s)
+        </span>
+      }
+      @if (aDesDisjoncteurs()) {
+        <span class="tb-badge tb-badge-warning">
+          <i class="fa-solid fa-bolt"></i>
+          {{ statistiques()?.disjoncteursOuverts }} disjoncteur(s) ouvert(s)
+        </span>
+      }
+      <button mat-icon-button (click)="rafraichir()" matTooltip="Rafraîchir les données" [disabled]="chargement()">
+        <mat-icon [class.spin]="chargement()">refresh</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  @if (chargement() && !resume()) {
+    <div class="tb-chargement">
+      <mat-spinner diameter="48" strokeWidth="3"></mat-spinner>
+      <p>Chargement du tableau de bord...</p>
+    </div>
+  }
+
+  @if (erreur()) {
+    <div class="tb-erreur">
+      <i class="fa-solid fa-circle-exclamation"></i> {{ erreur() }}
+      <button mat-button (click)="rafraichir()">Réessayer</button>
+    </div>
+  }
+
+  @if (resume(); as r) {
+    <!-- Cartes KPI -->
+    <section class="tb-kpi animate-fade-in">
+      <mat-card class="kpi-card kpi-total">
+        <div class="kpi-icone"><i class="fa-solid fa-money-bill-transfer"></i></div>
+        <div class="kpi-valeur">{{ r.transactions.total | number:'1.0-0' }}</div>
+        <div class="kpi-label">Transactions</div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" [style.width.%]="100"></div></div>
+      </mat-card>
+
+      <mat-card class="kpi-card kpi-acceptees">
+        <div class="kpi-icone"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="kpi-valeur">{{ r.transactions.acceptees | number:'1.0-0' }}</div>
+        <div class="kpi-label">Acceptées <span class="kpi-pct">({{ tauxAcceptation }}%)</span></div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" [style.width.%]="tauxAcceptation"></div></div>
+      </mat-card>
+
+      <mat-card class="kpi-card kpi-surveillees">
+        <div class="kpi-icone"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="kpi-valeur">{{ r.transactions.surveillees | number:'1.0-0' }}</div>
+        <div class="kpi-label">Surveillées <span class="kpi-pct">({{ tauxSurveillance }}%)</span></div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" [style.width.%]="tauxSurveillance"></div></div>
+      </mat-card>
+
+      <mat-card class="kpi-card kpi-bloquees">
+        <div class="kpi-icone"><i class="fa-solid fa-circle-xmark"></i></div>
+        <div class="kpi-valeur">{{ r.transactions.bloquees | number:'1.0-0' }}</div>
+        <div class="kpi-label">Bloquées <span class="kpi-pct">({{ tauxBlocage }}%)</span></div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" [style.width.%]="tauxBlocage"></div></div>
+      </mat-card>
+
+      <mat-card class="kpi-card kpi-score">
+        <div class="kpi-icone"><i class="fa-solid fa-gauge-high"></i></div>
+        <div class="kpi-valeur">{{ r.scoreRisqueMoyen | number:'1.1-1' || '0.0' }}</div>
+        <div class="kpi-label">Score moyen</div>
+        <div class="kpi-bar"><div class="kpi-bar-fill score" [style.width.%]="r.scoreRisqueMoyen || 0"></div></div>
+      </mat-card>
+    </section>
+
+    <!-- Graphiques -->
+    <section class="tb-graphiques animate-fade-in">
+      <!-- Tendance -->
+      <mat-card class="graphique-card graphique-large">
+        <div class="graphique-header">
+          <h3><i class="fa-solid fa-chart-line"></i> Tendance</h3>
+          <div class="graphique-periode">
+            <button [class.actif]="periodeActive() === '7j'" (click)="changerPeriode('7j')">7 jours</button>
+            <button [class.actif]="periodeActive() === '4s'" (click)="changerPeriode('4s')">4 semaines</button>
+            <button [class.actif]="periodeActive() === '12m'" (click)="changerPeriode('12m')">12 mois</button>
+          </div>
+        </div>
+        <div class="graphique-corps">
+          @if (chargement()) { <div class="graphique-loader"><mat-spinner diameter="32"></mat-spinner></div> }
+          <canvas baseChart [data]="donneesTendance" [options]="optionsTendance" [type]="'line'"></canvas>
+        </div>
+      </mat-card>
+
+      <!-- Répartition -->
+      <mat-card class="graphique-card graphique-petit">
+        <div class="graphique-header">
+          <h3><i class="fa-solid fa-chart-pie"></i> Répartition</h3>
+        </div>
+        <div class="graphique-corps donut">
+          <canvas baseChart [data]="donneesCamenbert" [options]="optionsCamenbert" [type]="'doughnut'"></canvas>
+        </div>
+      </mat-card>
+
+      <!-- Alertes par niveau -->
+      <mat-card class="graphique-card graphique-petit">
+        <div class="graphique-header">
+          <h3><i class="fa-solid fa-chart-bar"></i> Alertes par niveau</h3>
+        </div>
+        <div class="graphique-corps">
+          <canvas baseChart [data]="donneesBarresAlertes" [options]="optionsBarresAlertes" [type]="'bar'"></canvas>
+        </div>
+      </mat-card>
+    </section>
+
+    <!-- Top règles + Disjoncteurs -->
+    <section class="tb-bas animate-fade-in">
+      <mat-card class="bas-card">
+        <h3><i class="fa-solid fa-shield-halved"></i> Top 5 — Règles déclenchées</h3>
+        @for (regle of r.regles.topDeclenchees; track regle.regleId; let i = $index) {
+          <div class="top-item">
+            <span class="top-rang">#{{ i + 1 }}</span>
+            <span class="top-nom">{{ regle.nom }}</span>
+            <span class="top-nombre">{{ regle.nombre }}</span>
+          </div>
+        }
+        @if (!r.regles.topDeclenchees?.length) {
+          <p class="top-vide">Aucune règle déclenchée aujourd'hui</p>
+        }
+      </mat-card>
+
+      <mat-card class="bas-card">
+        <h3><i class="fa-solid fa-bolt"></i> Disjoncteurs ouverts</h3>
+        @for (d of r.disjoncteurs.disjoncteursOuverts; track d.id) {
+          <div class="top-item">
+            <span class="top-rang disjoncteur">{{ d.typeCibleLabel || d.typeCible }}</span>
+            <span class="top-nom">{{ d.identifiantCible }}</span>
+            <a [routerLink]="['/disjoncteurs']" class="top-action">Voir</a>
+          </div>
+        }
+        @if (!r.disjoncteurs.disjoncteursOuverts?.length) {
+          <p class="top-vide">Aucun disjoncteur ouvert</p>
+        }
+      </mat-card>
+    </section>
+  }
+</div>
