@@ -1,133 +1,143 @@
-// Fichier: pages/connexion/connexion.composant.ts
-
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  ReactiveFormsModule,
-  FormBuilder,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { AuthService } from '../../core/services/auth.service';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'bna-connexion',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-  ],
-  templateUrl: './connexion.composant.html',
-  styleUrls: ['./connexion.composant.scss'],
+  imports: [CommonModule, ReactiveFormsModule],
+  template: `
+<div class="login-page">
+  <div class="login-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="login-card">
+    <div class="login-logo">
+      <svg width="56" height="56" viewBox="0 0 80 80">
+        <rect x="2" y="2" width="76" height="76" rx="20" stroke="#4a9eff" stroke-width="2.5" fill="none"/>
+        <path d="M18 28L40 14L62 28V56C62 60 58.5 63 54 63H26C21.5 63 18 60 18 56V28Z" stroke="#4a9eff" stroke-width="2.5" fill="none"/>
+        <path d="M31 46L37 52L50 40" stroke="#6db3ff" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h1>BNA-FLUX</h1>
+    <p class="subtitle">Surveillance des Transactions Bancaires</p>
+
+    <div class="error-msg" *ngIf="erreur()">{{ erreur() }}</div>
+    <div class="success-msg" *ngIf="succes()">{{ succes() }}</div>
+
+    <div [formGroup]="formulaire">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" formControlName="email" placeholder="votre.email@bna.com.tn"/>
+      </div>
+      <div class="field">
+        <label>Mot de passe</label>
+        <input type="password" formControlName="motDePasse" placeholder="••••••••"/>
+      </div>
+      <button type="button" class="btn-login" (click)="soumettre()" [disabled]="chargement()">
+        {{ chargement() ? 'Connexion...' : 'Se connecter' }}
+      </button>
+    </div>
+
+    <div class="divider"><span>comptes de test</span></div>
+    <div class="test-btns">
+      <button (click)="remplirTest('admin')">Admin</button>
+      <button (click)="remplirTest('superviseur')">Superviseur</button>
+      <button (click)="remplirTest('operateur')">Opérateur</button>
+    </div>
+
+    <p class="footer">Banque Nationale Agricole &copy; 2026</p>
+  </div>
+</div>
+`,
+  styles: [`
+.login-page { min-height:100vh; display:flex; align-items:center; justify-content:center; background:#0a111f; font-family:'Inter',sans-serif; position:relative; overflow:hidden; }
+.login-bg { position:absolute; inset:0; }
+.orb { position:absolute; border-radius:50%; filter:blur(60px); opacity:0.1; }
+.orb-1 { width:400px; height:400px; background:#4a9eff; top:-10%; right:-5%; }
+.orb-2 { width:300px; height:300px; background:#6db3ff; bottom:-15%; left:-5%; }
+.orb-3 { width:250px; height:250px; background:#2d7dd2; top:50%; left:40%; }
+.login-card { position:relative; z-index:1; width:380px; max-width:92vw; padding:36px 28px 24px; background:#111d2e; border:1px solid rgba(74,158,255,0.2); border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.5); }
+.login-logo { display:flex; justify-content:center; margin-bottom:12px; }
+.login-logo svg { filter:drop-shadow(0 0 8px rgba(74,158,255,0.3)); }
+h1 { text-align:center; font-size:24px; font-weight:700; color:#4a9eff; letter-spacing:2px; margin-bottom:2px; }
+.subtitle { text-align:center; font-size:12px; color:#5a6d80; margin-bottom:20px; }
+.error-msg { background:rgba(231,76,60,0.15); border:1px solid rgba(231,76,60,0.3); color:#e74c3c; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; }
+.success-msg { background:rgba(46,204,113,0.15); border:1px solid rgba(46,204,113,0.3); color:#2ecc71; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; }
+.field { margin-bottom:14px; }
+.field label { display:block; font-size:11px; font-weight:600; color:#5a6d80; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+.field input { width:100%; padding:12px 14px; background:#0a111f; border:1px solid rgba(74,158,255,0.2); border-radius:8px; color:#e0e6ed; font-size:14px; font-family:inherit; outline:none; }
+.field input:focus { border-color:#4a9eff; }
+.btn-login { width:100%; padding:13px; margin-top:6px; background:linear-gradient(135deg,#4a9eff,#2d7dd2); border:none; border-radius:8px; color:white; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; }
+.btn-login:disabled { opacity:0.5; }
+.divider { display:flex; align-items:center; gap:10px; margin:20px 0 14px; color:#3a4a5a; font-size:10px; text-transform:uppercase; }
+.divider::before,.divider::after { content:''; flex:1; height:1px; background:rgba(74,158,255,0.1); }
+.test-btns { display:flex; gap:8px; justify-content:center; }
+.test-btns button { padding:6px 14px; background:transparent; border:1px solid rgba(74,158,255,0.2); border-radius:20px; color:#5a6d80; font-size:11px; cursor:pointer; font-family:inherit; }
+.test-btns button:hover { border-color:#4a9eff; color:#4a9eff; }
+.footer { text-align:center; margin-top:18px; padding-top:14px; border-top:1px solid rgba(74,158,255,0.08); font-size:10px; color:#3a4a5a; }
+`]
 })
 export class ConnexionComposant {
-  private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
+  private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-  private readonly snackBar = inject(MatSnackBar);
 
-  /** Formulaire de connexion */
-  readonly formulaire: FormGroup = this.fb.group({
+  readonly formulaire = inject(FormBuilder).group({
     email: ['', [Validators.required, Validators.email]],
     motDePasse: ['', [Validators.required, Validators.minLength(8)]],
   });
 
-  /** État de chargement */
   readonly chargement = signal(false);
-
-  /** Visibilité du mot de passe */
-  readonly motDePasseVisible = signal(false);
-
-  /** Message d'erreur */
   readonly erreur = signal<string | null>(null);
+  readonly succes = signal<string | null>(null);
 
-  /** Année courante pour le footer */
-  readonly anneeCourante = new Date().getFullYear();
+  soumettre(): void {
+    console.log('=== SOUMETTRE APPELE ===');
+    const { email, motDePasse } = this.formulaire.value;
+    console.log('Email:', email, 'MDP length:', motDePasse?.length);
 
-  /** URL de redirection après connexion */
-  private readonly redirectUrl: string | null = null;
-
-  constructor() {
-    this.redirectUrl = this.route.snapshot.queryParams['redirectUrl'] || null;
-  }
-
-  /** Soumet le formulaire de connexion */
-  async soumettre(): Promise<void> {
-    if (this.formulaire.invalid) {
-      this.formulaire.markAllAsTouched();
+    if (!email || !motDePasse) {
+      this.erreur.set('Veuillez remplir tous les champs');
       return;
     }
 
     this.chargement.set(true);
     this.erreur.set(null);
 
-    const { email, motDePasse } = this.formulaire.value;
+    const body = { email: email.trim().toLowerCase(), motDePasse };
+    console.log('Envoi requete:', body);
 
-    this.authService.connexion(email, motDePasse).subscribe({
-      next: () => {
+    this.http.post('/api/auth/connexion', body).subscribe({
+      next: (reponse: any) => {
+        console.log('SUCCES:', reponse);
         this.chargement.set(false);
-        this.snackBar.open('Connexion réussie — Bienvenue sur BNA-FLUX', 'Fermer', {
-          duration: 4000,
-          panelClass: ['snackbar-success'],
-          horizontalPosition: 'center',
-          verticalPosition: 'bottom',
-        });
-
-        // Redirection après connexion
-        const destination = this.redirectUrl || '/tableau-bord';
-        this.router.navigateByUrl(destination);
+        this.succes.set('Connecté! Token: ' + reponse.tokenAcces?.substring(0, 20) + '...');
+        localStorage.setItem('bna_token_acces', reponse.tokenAcces);
+        localStorage.setItem('bna_utilisateur', JSON.stringify(reponse.utilisateur));
+        setTimeout(() => this.router.navigateByUrl('/tableau-bord'), 500);
       },
       error: (err) => {
+        console.error('ERREUR:', err);
         this.chargement.set(false);
-        this.erreur.set(err.message || 'Erreur de connexion');
-        this.formulaire.get('motDePasse')?.reset();
-      },
+        this.erreur.set('Erreur: ' + (err.error?.message || err.message || 'Inconnue'));
+      }
     });
   }
 
-  /** Bascule la visibilité du mot de passe */
-  basculerVisibiliteMotDePasse(): void {
-    this.motDePasseVisible.update((v) => !v);
-  }
-
-  /** Retourne le message d'erreur pour un champ */
-  getErreurChamp(champ: string): string {
-    const controle = this.formulaire.get(champ);
-    if (!controle || !controle.touched || !controle.errors) return '';
-
-    if (controle.errors['required']) return 'Ce champ est requis';
-    if (controle.errors['email']) return 'Format d\'email invalide';
-    if (controle.errors['minlength']) return 'Minimum 8 caractères requis';
-
-    return 'Champ invalide';
-  }
-
-  /** Remplit les champs avec les identifiants de test (développement) */
-  remplirTest(role: 'admin' | 'superviseur' | 'operateur'): void {
+  remplirTest(role: string): void {
     const comptes: Record<string, { email: string; mdp: string }> = {
       admin: { email: 'admin@bna.com.tn', mdp: 'BnaFlux2026!' },
       superviseur: { email: 'superviseur@bna.com.tn', mdp: 'BnaFlux2026!' },
       operateur: { email: 'operateur@bna.com.tn', mdp: 'BnaFlux2026!' },
     };
-
-    const compte = comptes[role];
-    this.formulaire.patchValue({
-      email: compte.email,
-      motDePasse: compte.mdp,
-    });
+    const c = comptes[role];
+    if (c) {
+      this.formulaire.patchValue({ email: c.email, motDePasse: c.mdp });
+      console.log('Rempli avec:', role, c.email);
+    }
   }
 }

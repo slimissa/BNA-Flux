@@ -14,20 +14,20 @@
       <mat-label>Rechercher une devise</mat-label>
       <input matInput [(ngModel)]="recherche" (input)="filtrer()" placeholder="Ex: TND, Dinar, Euro..." />
       <mat-icon matPrefix>search</mat-icon>
-      @if (recherche()) {
+      <ng-container *ngIf="recherche()">
         <button mat-icon-button matSuffix (click)="recherche.set(''); filtrer()"><mat-icon>close</mat-icon></button>
       }
     </mat-form-field>
   </mat-card>
 
-  @if (chargement()) {
+  <ng-container *ngIf="chargement()">
     <div class="dv-loader"><mat-spinner diameter="40"></mat-spinner><p>Chargement des devises...</p></div>
   } @else if (erreur()) {
     <div class="dv-erreur"><i class="fa-solid fa-circle-exclamation"></i> {{ erreur() }}<button mat-button (click)="chargerDevises()">Réessayer</button></div>
   } @else {
     <!-- Grille des devises -->
     <div class="dv-grid">
-      @for (devise of devisesFiltrees(); track devise.code) {
+      <ng-container *ngFor="let devise of devisesFiltrees(); trackBy: trackByIndex">
         <mat-card class="dv-carte animate-fade-in" [class.dv-inactive]="!devise.actif">
           <!-- En-tête devise -->
           <div class="dv-carte-header">
@@ -57,19 +57,19 @@
 
           <!-- Statut -->
           <div class="dv-carte-footer">
-            @if (devise.actif) {
+            <ng-container *ngIf="devise.actif">
               <span class="dv-statut dv-statut-actif"><i class="fa-solid fa-circle"></i> Active</span>
             } @else {
               <span class="dv-statut dv-statut-inactif"><i class="fa-solid fa-circle"></i> Inactive</span>
             }
-            @if (devise.dateCreation) {
+            <ng-container *ngIf="devise.dateCreation">
               <span class="dv-date">Ajoutée le {{ devise.dateCreation | date:'dd/MM/yyyy' }}</span>
             }
           </div>
         </mat-card>
       }
 
-      @if (!devisesFiltrees().length) {
+      <ng-container *ngIf="!devisesFiltrees().length">
         <div class="dv-vide">
           <i class="fa-solid fa-search vide-icone"></i>
           <p>Aucune devise trouvée pour "{{ recherche() }}"</p>

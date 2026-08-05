@@ -12,7 +12,7 @@
   </header>
 
   <!-- Statistiques -->
-  @if (statistiques(); as stats) {
+  <ng-container *ngIf="statistiques(); as stats">
     <section class="dj-stats animate-fade-in">
       <mat-card class="dj-stat-card dj-stat-ouverts">
         <div class="stat-icone"><i class="fa-solid fa-circle-xmark"></i></div>
@@ -37,17 +37,17 @@
     </section>
   }
 
-  @if (chargement()) {
+  <ng-container *ngIf="chargement()">
     <div class="dj-loader"><mat-spinner diameter="40"></mat-spinner><p>Chargement des disjoncteurs...</p></div>
   } @else if (erreur()) {
     <div class="dj-erreur"><i class="fa-solid fa-circle-exclamation"></i> {{ erreur() }}<button mat-button (click)="chargerDisjoncteurs()">Réessayer</button></div>
   } @else {
     <!-- Disjoncteurs ouverts (prioritaires) -->
-    @if (disjoncteursOuverts.length) {
+    <ng-container *ngIf="disjoncteursOuverts.length">
       <section class="dj-section dj-section-ouverts animate-fade-in">
         <h2><i class="fa-solid fa-circle-xmark section-icone-ouverte"></i> Disjoncteurs ouverts — Action requise</h2>
         <div class="dj-grid">
-          @for (d of disjoncteursOuverts; track d.id) {
+          <ng-container *ngFor="let d of disjoncteursOuverts; trackBy: trackByIndex">
             <mat-card class="dj-carte dj-carte-ouverte">
               <div class="dj-carte-header">
                 <div class="dj-carte-icone" style="background: rgba(231,76,60,0.12); color: #e74c3c;">
@@ -69,7 +69,7 @@
                   <i class="fa-regular fa-clock"></i>
                   <span>Ouvert depuis {{ d.dateDerniereOuverture | date:'dd/MM/yyyy HH:mm' }}</span>
                 </div>
-                @if (d.tempsRestantAvantMiOuvert !== undefined && d.tempsRestantAvantMiOuvert !== null) {
+                <ng-container *ngIf="d.tempsRestantAvantMiOuvert !== undefined && d.tempsRestantAvantMiOuvert !== null">
                   <div class="dj-carte-timing">
                     <i class="fa-solid fa-hourglass-half"></i>
                     <span>Test automatique dans {{ formaterTempsRestant(d.tempsRestantAvantMiOuvert) }}</span>
@@ -77,10 +77,10 @@
                 }
               </div>
 
-              @if (authService.peutGererRegles()) {
+              <ng-container *ngIf="authService.peutGererRegles()">
                 <div class="dj-carte-actions">
                   <button mat-raised-button color="warn" (click)="reinitialiser(d)" [disabled]="reinitialisationEnCours() === d.id">
-                    @if (reinitialisationEnCours() === d.id) { <mat-spinner diameter="16" strokeWidth="2"></mat-spinner> }
+                    <ng-container *ngIf="reinitialisationEnCours() === d.id"> <mat-spinner diameter="16" strokeWidth="2"></mat-spinner> }
                     <i class="fa-solid fa-rotate-left"></i> Réinitialiser
                   </button>
                 </div>
@@ -92,11 +92,11 @@
     }
 
     <!-- Disjoncteurs mi-ouverts -->
-    @if (disjoncteursMiOuverts.length) {
+    <ng-container *ngIf="disjoncteursMiOuverts.length">
       <section class="dj-section animate-fade-in">
         <h2><i class="fa-solid fa-circle-half-stroke section-icone-miouverte"></i> Disjoncteurs en test</h2>
         <div class="dj-grid">
-          @for (d of disjoncteursMiOuverts; track d.id) {
+          <ng-container *ngFor="let d of disjoncteursMiOuverts; trackBy: trackByIndex">
             <mat-card class="dj-carte dj-carte-miouverte">
               <div class="dj-carte-header">
                 <div class="dj-carte-icone" style="background: rgba(243,156,18,0.12); color: #f39c12;">
@@ -122,11 +122,11 @@
     }
 
     <!-- Disjoncteurs fermés -->
-    @if (disjoncteursFermes.length) {
+    <ng-container *ngIf="disjoncteursFermes.length">
       <section class="dj-section animate-fade-in">
         <h2><i class="fa-solid fa-circle-check section-icone-fermee"></i> Disjoncteurs fermés</h2>
         <div class="dj-grid dj-grid-fermes">
-          @for (d of disjoncteursFermes; track d.id) {
+          <ng-container *ngFor="let d of disjoncteursFermes; trackBy: trackByIndex">
             <mat-card class="dj-carte-fermee">
               <div class="dj-carte-header">
                 <div class="dj-carte-icone" style="background: rgba(46,204,113,0.12); color: #2ecc71;">
@@ -147,7 +147,7 @@
       </section>
     }
 
-    @if (!disjoncteurs().length) {
+    <ng-container *ngIf="!disjoncteurs().length">
       <div class="dj-vide">
         <i class="fa-solid fa-bolt vide-icone"></i>
         <h3>Aucun disjoncteur</h3>

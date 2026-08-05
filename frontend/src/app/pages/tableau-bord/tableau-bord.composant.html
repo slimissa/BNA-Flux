@@ -14,13 +14,13 @@
       </span>
     </div>
     <div class="tb-header-droite">
-      @if (aDesAlertes()) {
+      <ng-container *ngIf="aDesAlertes()">
         <span class="tb-badge tb-badge-danger pulse">
           <i class="fa-solid fa-exclamation-triangle"></i>
           {{ statistiques()?.alertesActionsRequises }} action(s) requise(s)
         </span>
       }
-      @if (aDesDisjoncteurs()) {
+      <ng-container *ngIf="aDesDisjoncteurs()">
         <span class="tb-badge tb-badge-warning">
           <i class="fa-solid fa-bolt"></i>
           {{ statistiques()?.disjoncteursOuverts }} disjoncteur(s) ouvert(s)
@@ -32,21 +32,21 @@
     </div>
   </header>
 
-  @if (chargement() && !resume()) {
+  <ng-container *ngIf="chargement() && !resume()">
     <div class="tb-chargement">
       <mat-spinner diameter="48" strokeWidth="3"></mat-spinner>
       <p>Chargement du tableau de bord...</p>
     </div>
   }
 
-  @if (erreur()) {
+  <ng-container *ngIf="erreur()">
     <div class="tb-erreur">
       <i class="fa-solid fa-circle-exclamation"></i> {{ erreur() }}
       <button mat-button (click)="rafraichir()">Réessayer</button>
     </div>
   }
 
-  @if (resume(); as r) {
+  <ng-container *ngIf="resume(); as r">
     <!-- Cartes KPI -->
     <section class="tb-kpi animate-fade-in">
       <mat-card class="kpi-card kpi-total">
@@ -98,7 +98,7 @@
           </div>
         </div>
         <div class="graphique-corps">
-          @if (chargement()) { <div class="graphique-loader"><mat-spinner diameter="32"></mat-spinner></div> }
+          <ng-container *ngIf="chargement()"> <div class="graphique-loader"><mat-spinner diameter="32"></mat-spinner></div> }
           <canvas baseChart [data]="donneesTendance" [options]="optionsTendance" [type]="'line'"></canvas>
         </div>
       </mat-card>
@@ -128,28 +128,28 @@
     <section class="tb-bas animate-fade-in">
       <mat-card class="bas-card">
         <h3><i class="fa-solid fa-shield-halved"></i> Top 5 — Règles déclenchées</h3>
-        @for (regle of r.regles.topDeclenchees; track regle.regleId; let i = $index) {
+        <ng-container *ngFor="let regle of r.regles.topDeclenchees; trackBy: trackByIndex">
           <div class="top-item">
             <span class="top-rang">#{{ i + 1 }}</span>
             <span class="top-nom">{{ regle.nom }}</span>
             <span class="top-nombre">{{ regle.nombre }}</span>
           </div>
         }
-        @if (!r.regles.topDeclenchees?.length) {
+        <ng-container *ngIf="!r.regles.topDeclenchees?.length">
           <p class="top-vide">Aucune règle déclenchée aujourd'hui</p>
         }
       </mat-card>
 
       <mat-card class="bas-card">
         <h3><i class="fa-solid fa-bolt"></i> Disjoncteurs ouverts</h3>
-        @for (d of r.disjoncteurs.disjoncteursOuverts; track d.id) {
+        <ng-container *ngFor="let d of r.disjoncteurs.disjoncteursOuverts; trackBy: trackByIndex">
           <div class="top-item">
             <span class="top-rang disjoncteur">{{ d.typeCibleLabel || d.typeCible }}</span>
             <span class="top-nom">{{ d.identifiantCible }}</span>
             <a [routerLink]="['/disjoncteurs']" class="top-action">Voir</a>
           </div>
         }
-        @if (!r.disjoncteurs.disjoncteursOuverts?.length) {
+        <ng-container *ngIf="!r.disjoncteurs.disjoncteursOuverts?.length">
           <p class="top-vide">Aucun disjoncteur ouvert</p>
         }
       </mat-card>

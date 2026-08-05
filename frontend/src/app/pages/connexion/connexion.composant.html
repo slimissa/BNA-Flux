@@ -1,153 +1,45 @@
-<!-- Fichier: pages/connexion/connexion.composant.html -->
-
-<div class="connexion-container">
-  <!-- Fond décoratif -->
-  <div class="connexion-background">
-    <div class="bg-grid"></div>
-    <div class="bg-orb bg-orb-1"></div>
-    <div class="bg-orb bg-orb-2"></div>
-    <div class="bg-orb bg-orb-3"></div>
+<div class="login-page">
+  <div class="login-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
   </div>
 
-  <!-- Carte de connexion -->
-  <div class="connexion-card animate-fade-in-up">
-    <!-- Logo -->
-    <div class="connexion-logo">
-      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#4a9eff"/>
-            <stop offset="100%" stop-color="#2d7dd2"/>
-          </linearGradient>
-          <filter id="logoGlow">
-            <feGaussianBlur stdDeviation="3" result="blur"/>
-            <feMerge>
-              <feMergeNode in="blur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
-        <rect x="2" y="2" width="76" height="76" rx="20" stroke="url(#logoGradient)" stroke-width="2.5" fill="none" filter="url(#logoGlow)"/>
-        <path d="M18 28L40 14L62 28V56C62 60 58.5 63 54 63H26C21.5 63 18 60 18 56V28Z" stroke="url(#logoGradient)" stroke-width="2.5" fill="none"/>
-        <path d="M31 46L37 52L50 40" stroke="#6db3ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#logoGlow)"/>
+  <div class="login-card">
+    <div class="login-logo">
+      <svg width="56" height="56" viewBox="0 0 80 80">
+        <rect x="2" y="2" width="76" height="76" rx="20" stroke="#4a9eff" stroke-width="2.5" fill="none"/>
+        <path d="M18 28L40 14L62 28V56C62 60 58.5 63 54 63H26C21.5 63 18 60 18 56V28Z" stroke="#4a9eff" stroke-width="2.5" fill="none"/>
+        <path d="M31 46L37 52L50 40" stroke="#6db3ff" stroke-width="2.5" stroke-linecap="round"/>
       </svg>
     </div>
+    <h1>BNA-FLUX</h1>
+    <p class="subtitle">Surveillance des Transactions Bancaires</p>
 
-    <!-- Titre -->
-    <h1 class="connexion-titre">BNA-FLUX</h1>
-    <p class="connexion-soustitre">Surveillance des Transactions Bancaires</p>
+    <div class="error-msg" *ngIf="erreur()">{{ erreur() }}</div>
 
-    <!-- Message d'erreur -->
-    @if (erreur()) {
-      <div class="connexion-erreur animate-fade-in">
-        <i class="fa-solid fa-circle-exclamation"></i>
-        <span>{{ erreur() }}</span>
+    <div [formGroup]="formulaire">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" formControlName="email" placeholder="votre.email@bna.com.tn" autocomplete="email"/>
       </div>
-    }
-
-    <!-- Formulaire -->
-    <form [formGroup]="formulaire" (ngSubmit)="soumettre()" class="connexion-form">
-      <!-- Email -->
-      <mat-form-field appearance="outline" class="champ-plein">
-        <mat-label>Email</mat-label>
-        <input
-          matInput
-          type="email"
-          formControlName="email"
-          placeholder="votre.email@bna.com.tn"
-          autocomplete="email"
-          autofocus
-        />
-        <mat-icon matPrefix class="champ-icone">mail_outline</mat-icon>
-        @if (formulaire.get('email')?.touched && formulaire.get('email')?.invalid) {
-          <mat-error>{{ getErreurChamp('email') }}</mat-error>
-        }
-      </mat-form-field>
-
-      <!-- Mot de passe -->
-      <mat-form-field appearance="outline" class="champ-plein">
-        <mat-label>Mot de passe</mat-label>
-        <input
-          matInput
-          [type]="motDePasseVisible() ? 'text' : 'password'"
-          formControlName="motDePasse"
-          placeholder="••••••••"
-          autocomplete="current-password"
-        />
-        <mat-icon matPrefix class="champ-icone">lock_outline</mat-icon>
-        <button
-          mat-icon-button
-          matSuffix
-          type="button"
-          (click)="basculerVisibiliteMotDePasse()"
-          [attr.aria-label]="motDePasseVisible() ? 'Cacher le mot de passe' : 'Afficher le mot de passe'"
-          class="bouton-visibilite"
-        >
-          <mat-icon>{{ motDePasseVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
-        </button>
-        @if (formulaire.get('motDePasse')?.touched && formulaire.get('motDePasse')?.invalid) {
-          <mat-error>{{ getErreurChamp('motDePasse') }}</mat-error>
-        }
-      </mat-form-field>
-
-      <!-- Bouton de connexion -->
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        class="bouton-connexion"
-        [disabled]="chargement() || formulaire.invalid"
-      >
-        @if (chargement()) {
-          <mat-spinner diameter="20" strokeWidth="2"></mat-spinner>
-          <span class="ml-2">Connexion en cours...</span>
-        } @else {
-          <i class="fa-solid fa-right-to-bracket"></i>
-          <span>Se connecter</span>
-        }
+      <div class="field">
+        <label>Mot de passe</label>
+        <input [type]="motDePasseVisible() ? 'text' : 'password'" formControlName="motDePasse" placeholder="••••••••" autocomplete="current-password"/>
+        <span class="toggle-pwd" (click)="basculerVisibiliteMotDePasse()">{{ motDePasseVisible() ? '' : '👁' }}</span>
+      </div>
+      <button type="button" (click)="soumettre()" class="btn-login" [disabled]="chargement()">
+        {{ chargement() ? 'Connexion...' : 'Se connecter' }}
       </button>
-    </form>
-
-    <!-- Séparateur -->
-    <div class="connexion-separateur">
-      <span>ou</span>
     </div>
 
-    <!-- Comptes de test (développement) -->
-    <div class="connexion-tests">
-      <p class="tests-titre">Comptes de test</p>
-      <div class="tests-boutons">
-        <button
-          type="button"
-          class="test-bouton test-admin"
-          (click)="remplirTest('admin')"
-          matTooltip="Remplir avec le compte Administrateur"
-        >
-          <i class="fa-solid fa-crown"></i> Admin
-        </button>
-        <button
-          type="button"
-          class="test-bouton test-superviseur"
-          (click)="remplirTest('superviseur')"
-          matTooltip="Remplir avec le compte Superviseur"
-        >
-          <i class="fa-solid fa-user-shield"></i> Superviseur
-        </button>
-        <button
-          type="button"
-          class="test-bouton test-operateur"
-          (click)="remplirTest('operateur')"
-          matTooltip="Remplir avec le compte Opérateur"
-        >
-          <i class="fa-solid fa-user"></i> Opérateur
-        </button>
-      </div>
+    <div class="divider"><span>comptes de test</span></div>
+    <div class="test-btns">
+      <button (click)="remplirTest('admin')">Admin</button>
+      <button (click)="remplirTest('superviseur')">Superviseur</button>
+      <button (click)="remplirTest('operateur')">Opérateur</button>
     </div>
 
-    <!-- Footer -->
-    <div class="connexion-footer">
-      <p>Banque Nationale Agricole &copy; {{ anneeCourante }}</p>
-      <p class="footer-version">BNA-FLUX v1.0.0</p>
-    </div>
+    <p class="footer">Banque Nationale Agricole &copy; {{ anneeCourante }}</p>
   </div>
 </div>

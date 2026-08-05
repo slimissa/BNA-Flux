@@ -17,7 +17,7 @@
     <mat-expansion-panel-header>
       <mat-panel-title>
         <i class="fa-solid fa-filter"></i> Filtres
-        @if (aDesFiltres()) {
+        <ng-container *ngIf="aDesFiltres()">
           <span class="lt-filtres-badge">{{ filtresActifs().length }}</span>
         }
       </mat-panel-title>
@@ -28,7 +28,7 @@
         <mat-label>Statut</mat-label>
         <mat-select formControlName="statut">
           <mat-option value="">Tous</mat-option>
-          @for (s of STATUTS; track s) {
+          <ng-container *ngFor="let s of STATUTS; trackBy: trackByIndex">
             <mat-option [value]="s">{{ LABELS_STATUTS[s] }}</mat-option>
           }
         </mat-select>
@@ -38,7 +38,7 @@
         <mat-label>Devise</mat-label>
         <mat-select formControlName="codeDevise">
           <mat-option value="">Toutes</mat-option>
-          @for (d of devises(); track d.code) {
+          <ng-container *ngFor="let d of devises(); trackBy: trackByIndex">
             <mat-option [value]="d.code">{{ d.code }} — {{ d.nom }}</mat-option>
           }
         </mat-select>
@@ -48,7 +48,7 @@
         <mat-label>Canal</mat-label>
         <mat-select formControlName="canal">
           <mat-option value="">Tous</mat-option>
-          @for (c of CANAUX; track c) {
+          <ng-container *ngFor="let c of CANAUX; trackBy: trackByIndex">
             <mat-option [value]="c">{{ LABELS_CANAUX[c] }}</mat-option>
           }
         </mat-select>
@@ -58,7 +58,7 @@
         <mat-label>Type</mat-label>
         <mat-select formControlName="typeTransaction">
           <mat-option value="">Tous</mat-option>
-          @for (t of TYPES_TRANSACTION; track t) {
+          <ng-container *ngFor="let t of TYPES_TRANSACTION; trackBy: trackByIndex">
             <mat-option [value]="t">{{ LABELS_TYPES_TRANSACTION[t] }}</mat-option>
           }
         </mat-select>
@@ -98,9 +98,9 @@
     </form>
 
     <!-- Chips des filtres actifs -->
-    @if (aDesFiltres()) {
+    <ng-container *ngIf="aDesFiltres()">
       <div class="lt-filtres-chips">
-        @for (filtre of filtresActifs(); track $index) {
+        <ng-container *ngFor="let filtre of filtresActifs(); trackBy: trackByIndex">
           <mat-chip (removed)="supprimerFiltre(filtre.split(':')[0].toLowerCase())" class="filtre-chip">
             {{ filtre }}
             <mat-icon matChipRemove>cancel</mat-icon>
@@ -112,7 +112,7 @@
 
   <!-- Tableau -->
   <mat-card class="lt-tableau">
-    @if (chargement()) {
+    <ng-container *ngIf="chargement()">
       <div class="lt-chargement">
         <mat-spinner diameter="40" strokeWidth="3"></mat-spinner>
         <p>Chargement des transactions...</p>

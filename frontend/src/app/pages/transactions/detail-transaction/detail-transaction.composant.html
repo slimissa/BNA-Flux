@@ -6,7 +6,7 @@
     <button mat-icon-button routerLink="/transactions" matTooltip="Retour à la liste">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    @if (transaction(); as t) {
+    <ng-container *ngIf="transaction(); as t">
       <h1 class="dt-titre">Transaction {{ t.referenceTransaction }}</h1>
       <span
         class="dt-statut-badge"
@@ -20,7 +20,7 @@
     }
   </header>
 
-  @if (chargement()) {
+  <ng-container *ngIf="chargement()">
     <div class="dt-chargement"><mat-spinner diameter="48" strokeWidth="3"></mat-spinner><p>Chargement de la transaction...</p></div>
   } @else if (erreur()) {
     <div class="dt-erreur"><i class="fa-solid fa-circle-exclamation"></i> {{ erreur() }}<a routerLink="/transactions">Retour à la liste</a></div>
@@ -49,7 +49,7 @@
           <div class="dt-ligne"><span class="dt-etiq">Date de traitement</span><span class="dt-val">{{ t.traiteLe ? (t.traiteLe | date:'dd/MM/yyyy à HH:mm:ss') : 'En attente' }}</span></div>
           <div class="dt-ligne"><span class="dt-etiq">Type</span><span class="dt-val type-badge"><i [class]="ICONES_TYPES_TRANSACTION[t.typeTransaction]"></i> {{ LABELS_TYPES_TRANSACTION[t.typeTransaction] }}</span></div>
           <div class="dt-ligne"><span class="dt-etiq">Canal</span><span class="dt-val"><i [class]="ICONES_CANAUX[t.canal]"></i> {{ LABELS_CANAUX[t.canal] }}</span></div>
-          @if (t.description) { <div class="dt-ligne"><span class="dt-etiq">Description</span><span class="dt-val">{{ t.description }}</span></div> }
+          <ng-container *ngIf="t.description"> <div class="dt-ligne"><span class="dt-etiq">Description</span><span class="dt-val">{{ t.description }}</span></div> }
         </div>
       </mat-card>
 
@@ -84,17 +84,17 @@
         </div>
       </mat-card>
 
-      @if (t.paysOrigine || t.categorieContrepartie) {
+      <ng-container *ngIf="t.paysOrigine || t.categorieContrepartie">
         <mat-card class="dt-section">
           <h3><i class="fa-solid fa-globe"></i> Enrichissement</h3>
           <div class="dt-lignes">
-            @if (t.paysOrigine) { <div class="dt-ligne"><span class="dt-etiq">Pays d'origine</span><span class="dt-val">{{ t.paysOrigine }}</span></div> }
-            @if (t.categorieContrepartie) { <div class="dt-ligne"><span class="dt-etiq">Contrepartie</span><span class="dt-val">{{ t.categorieContrepartie }}</span></div> }
+            <ng-container *ngIf="t.paysOrigine"> <div class="dt-ligne"><span class="dt-etiq">Pays d'origine</span><span class="dt-val">{{ t.paysOrigine }}</span></div> }
+            <ng-container *ngIf="t.categorieContrepartie"> <div class="dt-ligne"><span class="dt-etiq">Contrepartie</span><span class="dt-val">{{ t.categorieContrepartie }}</span></div> }
           </div>
         </mat-card>
       }
 
-      @if (t.motif) {
+      <ng-container *ngIf="t.motif">
         <mat-card class="dt-section dt-section-motif">
           <h3><i class="fa-solid fa-clipboard-list"></i> Motif</h3>
           <p class="dt-motif-texte">{{ t.motif }}</p>
@@ -114,12 +114,12 @@
                 <i class="fa-solid fa-fingerprint"></i>
                 {{ verificationEnCours() ? 'Vérification...' : 'Vérifier l\'intégrité' }}
               </button>
-              @if (!pisteAudit().length && !chargementAudit()) {
+              <ng-container *ngIf="!pisteAudit().length && !chargementAudit()">
                 <button mat-button (click)="chargerPisteAudit()"><i class="fa-solid fa-rotate"></i> Charger</button>
               }
             </div>
 
-            @if (verification()) {
+            <ng-container *ngIf="verification()">
               <div class="dt-verification" [class.verif-ok]="verification()!.chaineIntacte" [class.verif-ko]="!verification()!.chaineIntacte">
                 <i class="fa-solid" [class.fa-circle-check]="verification()!.chaineIntacte" [class.fa-circle-xmark]="!verification()!.chaineIntacte"></i>
                 <span>{{ verification()!.messageErreur || 'Chaîne intacte — ' + verification()!.nombreEntrees + ' entrée(s) vérifiée(s)' }}</span>
@@ -127,11 +127,11 @@
               </div>
             }
 
-            @if (chargementAudit()) {
+            <ng-container *ngIf="chargementAudit()">
               <div class="dt-tab-loader"><mat-spinner diameter="24"></mat-spinner></div>
             } @else {
               <div class="dt-timeline">
-                @for (entree of pisteAudit(); track entree.id; let i = $index) {
+                <ng-container *ngFor="let entree of pisteAudit(); trackBy: trackByIndex">
                   <div class="timeline-item">
                     <div class="timeline-point" [style.background]="i === pisteAudit().length - 1 ? 'var(--color-primary)' : 'var(--color-text-tertiary)'">
                       <i [class]="getEtapeIcone(entree.etape)"></i>
@@ -149,7 +149,7 @@
                     </div>
                   </div>
                 }
-                @if (!pisteAudit().length) { <p class="dt-tab-vide">Aucune entrée d'audit chargée</p> }
+                <ng-container *ngIf="!pisteAudit().length"> <p class="dt-tab-vide">Aucune entrée d'audit chargée</p> }
               </div>
             }
           </div>
@@ -160,14 +160,14 @@
           <div class="dt-tab-content">
             <div class="dt-tab-header">
               <span>{{ alertes().length }} alerte(s)</span>
-              @if (!alertes().length && !chargementAlertes()) {
+              <ng-container *ngIf="!alertes().length && !chargementAlertes()">
                 <button mat-button (click)="chargerAlertes()"><i class="fa-solid fa-rotate"></i> Charger</button>
               }
             </div>
-            @if (chargementAlertes()) {
+            <ng-container *ngIf="chargementAlertes()">
               <div class="dt-tab-loader"><mat-spinner diameter="24"></mat-spinner></div>
             } @else {
-              @for (alerte of alertes(); track alerte.id) {
+              <ng-container *ngFor="let alerte of alertes(); trackBy: trackByIndex">
                 <div class="alerte-item" [style.borderLeftColor]="COULEURS_NIVEAUX_ALERTE[alerte.niveau]">
                   <div class="alerte-header">
                     <span class="alerte-niveau" [style.background]="COULEURS_NIVEAUX_ALERTE[alerte.niveau] + '18'" [style.color]="COULEURS_NIVEAUX_ALERTE[alerte.niveau]">
@@ -178,18 +178,18 @@
                   </div>
                   <p class="alerte-message">{{ alerte.message }}</p>
                   <div class="alerte-footer">
-                    @if (alerte.acquittee) {
+                    <ng-container *ngIf="alerte.acquittee">
                       <span class="alerte-acquittee"><i class="fa-solid fa-check"></i> Acquittée par {{ alerte.acquitteePar }} — {{ alerte.acquitteeLe | date:'dd/MM/yyyy HH:mm' }}</span>
                     } @else {
                       <span class="alerte-en-attente"><i class="fa-solid fa-clock"></i> En attente d'acquittement</span>
                     }
-                    @if (alerte.emailEnvoye) {
+                    <ng-container *ngIf="alerte.emailEnvoye">
                       <span class="alerte-email"><i class="fa-solid fa-envelope"></i> Email envoyé à {{ alerte.emailDestinataire }}</span>
                     }
                   </div>
                 </div>
               }
-              @if (!alertes().length) { <p class="dt-tab-vide">Aucune alerte — Transaction acceptée sans déclenchement de règle</p> }
+              <ng-container *ngIf="!alertes().length"> <p class="dt-tab-vide">Aucune alerte — Transaction acceptée sans déclenchement de règle</p> }
             }
           </div>
         </mat-tab>
