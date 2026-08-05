@@ -1,0 +1,176 @@
+# ============================================================
+# BNA-FLUX — Docker Compose
+# ============================================================
+# Orchestration des services :
+#   - postgres  : Base de données PostgreSQL 16
+#   - backend   : API Spring Boot sur le port 8080
+#   - frontend  : Application Angular servie par Nginx sur le port 80
+#
+# Démarrage :
+#   docker compose up -d
+#
+# Arrêt :
+#   docker compose down
+#
+# Reconstruction après modifications :
+#   docker compose up -d --build
+# ============================================================
+
+
+# Services
+services:
+
+  # PostgreSQL — Base de données
+  postgres:
+    image: postgres:16-alpine
+    container_name: bna-flux-postgres
+    restart: unless-stopped
+    environment:
+      # Configuration de la base de données
+      POSTGRES_DB: ${POSTGRES_DB:-bnaflux}
+      POSTGRES_USER: ${POSTGRES_USER:-bnaflux}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bnaflux2026}
+      # Configuration du cluster PostgreSQL
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=fr_FR.UTF-8"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      # Volume persistant pour les données
+      - postgres_data:/var/lib/postgresql/data
+      # Script d'initialisation (création des tables + seeds)
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bnaflux} -d ${POSTGRES_DB:-bnaflux}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - bna-flux-network
+    # Limites de ressources
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+        reservations:
+          memory: 256M
+          cpus: "0.5"
+
+  # Backend — API Spring Boot
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: bna-flux-backend:1.0.0
+    container_name: bna-flux-backend
+    restart: unless-stopped
+    environment:
+      # Configuration Spring
+      SPRING_PROFILES_ACTIVE: docker
+
+      # Base de données
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-bnaflux}
+      POSTGRES_USER: ${POSTGRES_USER:-bnaflux}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bnaflux2026}
+
+      # JWT — Clé secrète (DOIT être surchargée en production)
+      BNA_JWT_SECRET: ${BNA_JWT_SECRET:-changez-cette-cle-en-production-avec-une-cle-d-au-moins-256-bits}
+
+      # JWT — Durées des tokens
+      JWT_ACCES_MINUTES: ${JWT_ACCES_MINUTES:-60}
+      JWT_RAFRAICHISSEMENT_HEURES: ${JWT_RAFRAICHISSEMENT_HEURES:-24}
+
+      # SMTP (optionnel — laisser vide pour utiliser le mode console)
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+
+      # Frontend URL (pour CORS)
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    volumes:
+      # Logs persistants
+      - backend_logs:/var/log/bna-flux
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - bna-flux-network
+    # Limites de ressources
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "2.0"
+        reservations:
+          memory: 512M
+          cpus: "0.5"
+
+  # Frontend — Angular + Nginx
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: bna-flux-frontend:1.0.0
+    container_name: bna-flux-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    volumes:
+      # Logs Nginx
+      - frontend_logs:/var/log/nginx
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - bna-flux-network
+    # Limites de ressources
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+        reservations:
+          memory: 128M
+          cpus: "0.25"
+
+# Volumes persistants
+volumes:
+  # Données PostgreSQL
+  postgres_data:
+    name: bna-flux-postgres-data
+    driver: local
+
+  # Logs backend
+  backend_logs:
+    name: bna-flux-backend-logs
+    driver: local
+
+  # Logs frontend
+  frontend_logs:
+    name: bna-flux-frontend-logs
+    driver: local
+
+# Réseau
+networks:
+  bna-flux-network:
+    name: bna-flux-network
+    driver: bridge
