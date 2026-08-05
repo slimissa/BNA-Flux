@@ -1,0 +1,221 @@
+# BNA-FLUX — Configuration du profil Docker
+# Profil activé dans docker-compose.yml via SPRING_PROFILES_ACTIVE=docker
+# Utilise PostgreSQL comme base de données.
+# Configuration SMTP réelle pour les emails.
+# Logs moins verbeux qu'en développement.
+
+spring:
+  # Base de données PostgreSQL
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:postgres}:${POSTGRES_PORT:5432}/${POSTGRES_DB:bnaflux}
+    driver-class-name: org.postgresql.Driver
+    username: ${POSTGRES_USER:bnaflux}
+    password: ${POSTGRES_PASSWORD:bnaflux2026}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1800000
+      pool-name: BnaFluxPostgresPool
+      auto-commit: true
+      connection-test-query: SELECT 1
+
+  # JPA / Hibernate — Mode production
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+        use_sql_comments: false
+        show_sql: false
+        hbm2ddl:
+          auto: validate
+        jdbc:
+          batch_size: 50
+          fetch_size: 100
+        order_inserts: true
+        order_updates: true
+        generate_statistics: false
+    show-sql: false
+    open-in-view: false
+
+  # Initialisation — Désactivée (gérée par init.sql)
+  sql:
+    init:
+      mode: never
+
+  # Jackson — Pas de pretty print en production
+  jackson:
+    serialization:
+      indent-output: false
+
+# Logging — Niveau production
+logging:
+  level:
+    root: WARN
+    com.bna.flux: INFO
+    com.bna.flux.service: INFO
+    com.bna.flux.controller: INFO
+    org.springframework.web: WARN
+    org.springframework.security: WARN
+    org.hibernate: ERROR
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: /var/log/bna-flux/bna-flux.log
+    max-size: 50MB
+    max-history: 90
+
+# Actuator — Limité en production
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
+# Documentation OpenAPI — Activée
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  show-actuator: false
+
+# Configuration métier — Production
+bna:
+  # Pipeline — Asynchrone en production
+  pipeline:
+    active: true
+    timeout-seconds: 30
+    retry-max: 0
+    mode-synchrone: false
+
+  # Règles — Cache activé
+  regles:
+    cache-expressions: true
+    cache-size: 500
+    evaluation-timeout-ms: 5000
+
+  # Validation RIB — Active
+  rib:
+    longueur: 20
+    longueur-code-banque: 2
+    longueur-code-agence: 3
+    longueur-compte: 13
+    longueur-cle: 2
+    modulo: 97
+    validation-active: true
+
+  # Notation — Seuils production
+  notation:
+    seuil-surveille: 30
+    seuil-bloque: 71
+    score-max: 100
+
+  # Disjoncteur — Configuration production
+  disjoncteur:
+    seuil-echecs: 3
+    fenetre-heures: 24
+    delai-ouverture-minutes: 60
+    intervalle-verification-ms: 60000
+    actif: true
+    types-cibles:
+      - COMPTE_SOURCE
+      - COMPTE_DESTINATION
+      - AGENCE
+      - CANAL
+
+  # Alertes — Email SMTP réel
+  alertes:
+    niveaux:
+      - FAIBLE
+      - MOYEN
+      - ELEVE
+      - CRITIQUE
+    email:
+      actif: true
+      mode-console: false
+      seuil-immediat: CRITIQUE
+      lot-intervalle-minutes: 15
+      smtp:
+        host: ${SMTP_HOST:smtp.bna.com.tn}
+        port: ${SMTP_PORT:587}
+        username: ${SMTP_USERNAME:}
+        password: ${SMTP_PASSWORD:}
+        properties:
+          mail:
+            smtp:
+              auth: true
+              starttls:
+                enable: true
+              connectiontimeout: 5000
+              timeout: 5000
+              writetimeout: 5000
+
+  # Audit — Actif
+  audit:
+    algorithme-hash: SHA-256
+    actif: true
+    verification-active: true
+    log-verbose: false
+
+  # Sécurité JWT — Clé production (DOIT être surchargée)
+  securite:
+    jwt:
+      secret: ${BNA_JWT_SECRET:changez-cette-cle-en-production-avec-une-cle-d-au-moins-256-bits}
+      duree-acces-minutes: ${JWT_ACCES_MINUTES:60}
+      duree-rafraichissement-heures: ${JWT_RAFRAICHISSEMENT_HEURES:24}
+      emetteur: bna-flux
+      audience: bna-agences
+
+  # Devises
+  devises:
+    fichier: devises.json
+    chemin: classpath:devises.json
+
+# Configuration CORS — Restrictive en production
+app:
+  cors:
+    allowed-origins:
+      - ${FRONTEND_URL:http://localhost}
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+      - OPTIONS
+    allowed-headers:
+      - Authorization
+      - Content-Type
+      - Accept
+      - Origin
+      - X-Requested-With
+    max-age: 3600
+    allow-credentials: true
+
+  initialisation:
+    devises:
+      charger-au-demarrage: true
+      fichier: classpath:devises.json
+    regles:
+      charger-au-demarrage: true
+      fichier: classpath:regles-par-defaut.json
+    utilisateurs:
+      charger-au-demarrage: false

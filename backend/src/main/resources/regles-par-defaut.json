@@ -1,0 +1,112 @@
+[
+  {
+    "nom": "Virement international ≥ 50 000 TND en devise étrangère",
+    "description": "Surveille les virements sortants d'un montant égal ou supérieur à 50 000 dans une devise autre que le dinar tunisien. Conforme aux recommandations de la BCT sur les transferts internationaux.",
+    "expressionCondition": "montant >= 50000 AND codeDevise != 'TND'",
+    "severite": "ELEVE",
+    "contributionScore": 30,
+    "typeRegle": "ALERTE",
+    "categorie": "Virements internationaux",
+    "priorite": 10,
+    "actif": true
+  },
+  {
+    "nom": "Dépôt en espèces ≥ 10 000 TND hors agence",
+    "description": "Détecte les dépôts en espèces importants effectués en dehors d'une agence physique (DAB, en ligne, mobile). Conforme aux obligations de lutte anti-blanchiment (LAB).",
+    "expressionCondition": "typeTransaction == 'ESPECES' AND montant >= 10000 AND canal != 'AGENCE'",
+    "severite": "ELEVE",
+    "contributionScore": 30,
+    "typeRegle": "ALERTE",
+    "categorie": "Lutte anti-blanchiment",
+    "priorite": 10,
+    "actif": true
+  },
+  {
+    "nom": "Virement en ligne ≥ 5 000 TND",
+    "description": "Surveille les virements initiés via la plateforme en ligne pour des montants significatifs. Les canaux en ligne présentent un risque accru de fraude.",
+    "expressionCondition": "canal == 'EN_LIGNE' AND montant >= 5000 AND typeTransaction == 'VIREMENT'",
+    "severite": "MOYEN",
+    "contributionScore": 15,
+    "typeRegle": "ALERTE",
+    "categorie": "Sécurité des canaux en ligne",
+    "priorite": 30,
+    "actif": true
+  },
+  {
+    "nom": "Réception depuis un pays étranger ≥ 20 000 TND",
+    "description": "Surveille les transactions entrantes depuis l'étranger pour des montants significatifs. Peut indiquer des flux transfrontaliers nécessitant une déclaration.",
+    "expressionCondition": "paysOrigine != null AND paysOrigine != 'Tunisie' AND montant >= 20000",
+    "severite": "MOYEN",
+    "contributionScore": 20,
+    "typeRegle": "ALERTE",
+    "categorie": "Virements internationaux",
+    "priorite": 25,
+    "actif": true
+  },
+  {
+    "nom": "Transaction mobile ≥ 3 000 TND",
+    "description": "Surveille les transactions initiées via l'application mobile pour des montants modérés à élevés. Le canal mobile est plus vulnérable au phishing et aux malwares.",
+    "expressionCondition": "canal == 'MOBILE' AND montant >= 3000",
+    "severite": "MOYEN",
+    "contributionScore": 15,
+    "typeRegle": "PREVENTION",
+    "categorie": "Sécurité des canaux en ligne",
+    "priorite": 40,
+    "actif": true
+  },
+  {
+    "nom": "Blocage virement suspect ≥ 100 000 TND vers pays à risque",
+    "description": "Bloque automatiquement les virements d'un montant très élevé vers des pays considérés à risque. Règle de type AUTO_REJET pour protection maximale.",
+    "expressionCondition": "montant >= 100000 AND paysOrigine != null AND paysOrigine != 'Tunisie' AND typeTransaction == 'VIREMENT'",
+    "severite": "CRITIQUE",
+    "contributionScore": 50,
+    "typeRegle": "AUTO_REJET",
+    "categorie": "Virements internationaux",
+    "priorite": 5,
+    "actif": true
+  },
+  {
+    "nom": "Chèque ≥ 50 000 TND",
+    "description": "Surveille les transactions par chèque pour des montants importants. Les chèques de grande valeur sont soumis à des vérifications renforcées.",
+    "expressionCondition": "typeTransaction == 'CHEQUE' AND montant >= 50000",
+    "severite": "MOYEN",
+    "contributionScore": 15,
+    "typeRegle": "ALERTE",
+    "categorie": "Opérations chèques",
+    "priorite": 35,
+    "actif": true
+  },
+  {
+    "nom": "Paiement par carte ≥ 8 000 TND en ligne",
+    "description": "Surveille les paiements par carte bancaire sur le canal en ligne pour des montants élevés. Risque accru de fraude à la carte bancaire.",
+    "expressionCondition": "typeTransaction == 'CARTE' AND canal == 'EN_LIGNE' AND montant >= 8000",
+    "severite": "ELEVE",
+    "contributionScore": 25,
+    "typeRegle": "ALERTE",
+    "categorie": "Sécurité des canaux en ligne",
+    "priorite": 15,
+    "actif": true
+  },
+  {
+    "nom": "Prélèvement ≥ 10 000 TND",
+    "description": "Surveille les prélèvements automatiques pour des montants inhabituellement élevés. Peut indiquer une fraude aux prélèvements.",
+    "expressionCondition": "typeTransaction == 'PRELEVEMENT' AND montant >= 10000",
+    "severite": "MOYEN",
+    "contributionScore": 15,
+    "typeRegle": "PREVENTION",
+    "categorie": "Opérations récurrentes",
+    "priorite": 45,
+    "actif": true
+  },
+  {
+    "nom": "Transfert DAB ≥ 2 000 TND en espèces",
+    "description": "Surveille les retraits en espèces aux distributeurs pour des montants supérieurs au plafond standard. Peut indiquer un contournement des limites.",
+    "expressionCondition": "canal == 'DAB' AND typeTransaction == 'ESPECES' AND montant >= 2000",
+    "severite": "FAIBLE",
+    "contributionScore": 10,
+    "typeRegle": "PREVENTION",
+    "categorie": "Lutte anti-blanchiment",
+    "priorite": 50,
+    "actif": true
+  }
+]

@@ -1,0 +1,138 @@
+[
+  {
+    "code": "TND",
+    "nom": "Dinar Tunisien",
+    "unitesMineures": 3,
+    "symbole": "د.ت",
+    "codeNumerique": "788",
+    "actif": true
+  },
+  {
+    "code": "EUR",
+    "nom": "Euro",
+    "unitesMineures": 2,
+    "symbole": "€",
+    "codeNumerique": "978",
+    "actif": true
+  },
+  {
+    "code": "KWD",
+    "nom": "Dinar Koweïtien",
+    "unitesMineures": 3,
+    "symbole": "د.ك",
+    "codeNumerique": "414",
+    "actif": true
+  },
+  {
+    "code": "USD",
+    "nom": "Dollar Américain",
+    "unitesMineures": 2,
+    "symbole": "$",
+    "codeNumerique": "840",
+    "actif": true
+  },
+  {
+    "code": "CAD",
+    "nom": "Dollar Canadien",
+    "unitesMineures": 2,
+    "symbole": "CA$",
+    "codeNumerique": "124",
+    "actif": true
+  },
+  {
+    "code": "GBP",
+    "nom": "Livre Sterling",
+    "unitesMineures": 2,
+    "symbole": "£",
+    "codeNumerique": "826",
+    "actif": true
+  },
+  {
+    "code": "CHF",
+    "nom": "Franc Suisse",
+    "unitesMineures": 2,
+    "symbole": "CHF",
+    "codeNumerique": "756",
+    "actif": true
+  },
+  {
+    "code": "BHD",
+    "nom": "Dinar Bahreïni",
+    "unitesMineures": 3,
+    "symbole": "د.ب",
+    "codeNumerique": "48",
+    "actif": true
+  },
+  {
+    "code": "SEK",
+    "nom": "Couronne Suédoise",
+    "unitesMineures": 2,
+    "symbole": "kr",
+    "codeNumerique": "752",
+    "actif": true
+  },
+  {
+    "code": "SAR",
+    "nom": "Riyal Saoudien",
+    "unitesMineures": 2,
+    "symbole": "﷼",
+    "codeNumerique": "682",
+    "actif": true
+  },
+  {
+    "code": "QAR",
+    "nom": "Riyal Qatari",
+    "unitesMineures": 2,
+    "symbole": "ر.ق",
+    "codeNumerique": "634",
+    "actif": true
+  },
+  {
+    "code": "NOK",
+    "nom": "Couronne Norvégienne",
+    "unitesMineures": 2,
+    "symbole": "kr",
+    "codeNumerique": "578",
+    "actif": true
+  },
+  {
+    "code": "JPY",
+    "nom": "Yen Japonais",
+    "unitesMineures": 0,
+    "symbole": "¥",
+    "codeNumerique": "392",
+    "actif": true
+  },
+  {
+    "code": "DKK",
+    "nom": "Couronne Danoise",
+    "unitesMineures": 2,
+    "symbole": "kr",
+    "codeNumerique": "208",
+    "actif": true
+  },
+  {
+    "code": "AED",
+    "nom": "Dirham des Émirats Arabes Unis",
+    "unitesMineures": 2,
+    "symbole": "د.إ",
+    "codeNumerique": "784",
+    "actif": true
+  },
+  {
+    "code": "CNY",
+    "nom": "Yuan Chinois",
+    "unitesMineures": 2,
+    "symbole": "¥",
+    "codeNumerique": "156",
+    "actif": true
+  },
+  {
+    "code": "LYD",
+    "nom": "Dinar Libyen",
+    "unitesMineures": 3,
+    "symbole": "ل.د",
+    "codeNumerique": "434",
+    "actif": true
+  }
+]
