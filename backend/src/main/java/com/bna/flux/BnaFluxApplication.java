@@ -71,7 +71,7 @@ public class BnaFluxApplication {
         });
 
         // Propriétés additionnelles avant démarrage
-        application.setAdditionalProfiles("dev");
+        // Le profil est défini via SPRING_PROFILES_ACTIVE (dev par défaut, docker en production)
         application.setAllowBeanDefinitionOverriding(false);
         application.setLogStartupInfo(true);
 

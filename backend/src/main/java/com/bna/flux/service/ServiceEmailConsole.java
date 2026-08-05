@@ -45,7 +45,7 @@ import java.util.List;
  */
 @Slf4j
 @Service
-@Profile("dev")
+@Profile({"dev", "docker"})
 public class ServiceEmailConsole implements ServiceEmail {
 
     private static final DateTimeFormatter FORMAT_DATE = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
