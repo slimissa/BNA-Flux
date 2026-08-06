@@ -1,101 +1,45 @@
-// Fichier: pages/devises/devises.composant.ts
-
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule } from '@angular/forms';
-import { DeviseService } from '../../core/services/devise.service';
-import { Devise, formaterMontant, formaterMontantAvecNom } from '@modeles/devise.modele';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'bna-devises',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatIconModule,
-    MatButtonModule,
-    MatChipsModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatInputModule,
-    MatFormFieldModule,
-    FormsModule,
-  ],
-  templateUrl: './devises.composant.html',
-  styleUrls: ['./devises.composant.scss'],
+  imports: [CommonModule],
+  template: `
+    <div style="padding:40px;background:#0d1b2a;min-height:100vh;color:#e0e6ed;font-family:'Inter',sans-serif">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px">
+        <h1 style="color:#4a9eff;margin:0"> Devises</h1>
+        <div style="display:flex;gap:12px">
+          <a href="/tableau-bord" style="color:#4a9eff;text-decoration:none;padding:8px 16px;border:1px solid rgba(74,158,255,0.3);border-radius:8px">← Tableau de bord</a>
+          <button (click)="deconnexion()" style="padding:8px 16px;background:transparent;border:1px solid rgba(231,76,60,0.3);color:#e74c3c;border-radius:8px;cursor:pointer">Déconnexion</button>
+        </div>
+      </div>
+
+      <div *ngIf="chargement()" style="text-align:center;padding:40px;color:#5a6d80">Chargement...</div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+        <div *ngFor="let d of devises()" style="background:#162840;border:1px solid rgba(74,158,255,0.15);border-radius:10px;padding:16px;text-align:center">
+          <div style="font-size:28px;margin-bottom:4px">{{ d.symbole }}</div>
+          <div style="font-size:18px;font-weight:700;color:#4a9eff">{{ d.code }}</div>
+          <div style="font-size:12px;color:#5a6d80;margin-top:4px">{{ d.nom }}</div>
+          <div style="font-size:11px;color:{{ d.unitesMineures === 3 ? '#f39c12' : d.unitesMineures === 0 ? '#3498db' : '#2ecc71' }};margin-top:6px">{{ d.unitesMineures }} décimales</div>
+        </div>
+      </div>
+    </div>
+  `
 })
 export class DevisesComposant implements OnInit {
-  private readonly deviseService = inject(DeviseService);
-
-  readonly devises = signal<Devise[]>([]);
-  readonly devisesFiltrees = signal<Devise[]>([]);
+  private readonly http = inject(HttpClient);
+  readonly devises = signal<any[]>([]);
   readonly chargement = signal(true);
-  readonly erreur = signal<string | null>(null);
-  readonly recherche = signal('');
 
-  ngOnInit(): void { this.chargerDevises(); }
-
-  chargerDevises(): void {
-    this.chargement.set(true);
-    this.deviseService.lister().subscribe({
-      next: (devises) => {
-        this.devises.set(devises);
-        this.devisesFiltrees.set(devises);
-        this.chargement.set(false);
-      },
-      error: () => {
-        this.erreur.set('Erreur lors du chargement des devises');
-        this.chargement.set(false);
-      },
+  ngOnInit(): void {
+    this.http.get('/api/devises').subscribe({
+      next: (data: any) => { this.devises.set(data.devises || []); this.chargement.set(false); },
+      error: () => this.chargement.set(false)
     });
   }
 
-  filtrer(): void {
-    const terme = this.recherche().toLowerCase().trim();
-    if (!terme) {
-      this.devisesFiltrees.set(this.devises());
-      return;
-    }
-    this.devisesFiltrees.set(
-      this.devises().filter(d =>
-        d.code.toLowerCase().includes(terme) ||
-        d.nom.toLowerCase().includes(terme)
-      )
-    );
-  }
-
-  getExempleMontant(unitesMineures: number): string {
-    const montant = 100.500;
-    return formaterMontant(montant, undefined, unitesMineures);
-  }
-
-  getDescriptionUnites(unitesMineures: number): string {
-    switch (unitesMineures) {
-      case 0: return 'Pas de sous-unité (entier)';
-      case 2: return 'Centimes (2 décimales)';
-      case 3: return 'Millimes (3 décimales)';
-      default: return `${unitesMineures} décimales`;
-    }
-  }
-
-  getCouleurUnites(unitesMineures: number): string {
-    switch (unitesMineures) {
-      case 0: return '#3498db';
-      case 2: return '#2ecc71';
-      case 3: return '#f39c12';
-      default: return '#9b59b6';
-    }
-  }
-
-  get activesCount(): number {
-    return this.devises().filter(d => d.actif).length;
-  }
+  deconnexion(): void { localStorage.clear(); window.location.href = '/connexion'; }
 }
