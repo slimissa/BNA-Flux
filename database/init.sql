@@ -219,7 +219,6 @@ INSERT INTO devises (code, nom, unites_mineures, symbole, code_numerique, actif)
 ('AED', 'Dirham des Émirats Arabes Unis', 2, 'د.إ', '784', TRUE),
 ('CNY', 'Yuan Chinois', 2, '¥', '156', TRUE),
 ('LYD', 'Dinar Libyen', 3, 'ل.د', '434', TRUE)
-ON CONFLICT (code) DO NOTHING;
 
 -- Données de référence — Règles par défaut (10 règles)
 INSERT INTO regles (nom, description, expression_condition, severite, contribution_score, type_regle, categorie, priorite, actif) VALUES
@@ -283,41 +282,8 @@ INSERT INTO regles (nom, description, expression_condition, severite, contributi
     'canal == ''DAB'' AND typeTransaction == ''ESPECES'' AND montant >= 2000',
     'FAIBLE', 10, 'PREVENTION', 'Lutte anti-blanchiment', 50, TRUE
 )
-ON CONFLICT DO NOTHING;
 
 -- ============================================================
--- Données de référence — Utilisateurs de test
--- ============================================================
--- Mot de passe pour tous les comptes de test : BnaFlux2026!
--- Hash BCrypt (facteur 12) généré avec :
---   $2a$12$... (mot de passe : BnaFlux2026!)
--- ============================================================
-INSERT INTO utilisateurs (email, mot_de_passe, nom, role, code_agence, actif) VALUES
-(
-    'admin@bna.com.tn',
-    '$2a$12$LJ3m4ys3Gql.ZHxHRrGI5eFh5vX5qP9G9G9G9G9G9G9G9G9G9G',
-    'Administrateur BNA',
-    'ADMIN',
-    NULL,
-    TRUE
-),
-(
-    'superviseur@bna.com.tn',
-    '$2a$12$LJ3m4ys3Gql.ZHxHRrGI5eFh5vX5qP9G9G9G9G9G9G9G9G9G9G',
-    'Superviseur Agence 601',
-    'SUPERVISEUR',
-    '601',
-    TRUE
-),
-(
-    'operateur@bna.com.tn',
-    '$2a$12$LJ3m4ys3Gql.ZHxHRrGI5eFh5vX5qP9G9G9G9G9G9G9G9G9G9G',
-    'Opérateur Agence 601',
-    'OPERATEUR',
-    '601',
-    TRUE
-)
-ON CONFLICT (email) DO NOTHING;
 
 -- Commentaires sur les tables (documentation)
 COMMENT ON TABLE devises IS 'Devises ISO 4217 supportées par BNA-FLUX';

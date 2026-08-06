@@ -8,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("dev")
+@Profile({"dev", "docker"})
 public class InitialisateurTestData implements CommandLineRunner {
     private final UtilisateurRepository repo;
     private final PasswordEncoder encoder;
