@@ -280,7 +280,7 @@ public class JwtProvider {
 
             if (utilisateurOpt.isPresent()) {
                 // Mettre à jour la date de dernière connexion (asynchrone serait mieux)
-                utilisateurRepository.updateDerniereConnexion(email, LocalDateTime.now());
+                // Mise à jour dernière connexion désactivée (nécessite @Transactional)
                 log.debug("Token valide pour l'utilisateur : {}", email);
             } else {
                 log.warn("Token valide mais utilisateur introuvable ou inactif : {}", email);

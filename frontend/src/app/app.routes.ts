@@ -1,11 +1,9 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  {
-    path: 'connexion',
-    loadComponent: () =>
-      import('./pages/connexion/connexion.composant').then((m) => m.ConnexionComposant),
-  },
+  { path: 'connexion', loadComponent: () => import('./pages/connexion/connexion.composant').then(m => m.ConnexionComposant) },
+  { path: 'tableau-bord', loadComponent: () => import('./pages/tableau-bord/tableau-bord.composant').then(m => m.TableauBordComposant) },
+  { path: 'transactions', loadComponent: () => import('./pages/transactions/liste-transactions/liste-transactions.composant').then(m => m.ListeTransactionsComposant) },
   { path: '', redirectTo: 'connexion', pathMatch: 'full' },
   { path: '**', redirectTo: 'connexion' },
 ];
