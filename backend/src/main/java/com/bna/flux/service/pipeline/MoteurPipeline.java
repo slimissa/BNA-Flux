@@ -158,8 +158,8 @@ public class MoteurPipeline {
             // Stage 5 — Persistance
             log.debug(">>> Stage 5 — Persistance");
             etapePersistance.executer(contexte);
-            enregistrerAudit(contexte, "PERSISTANCE",
-                    contexte.isPersistanceReussie() ? "PERSISTANCE_REUSSIE" : "PERSISTANCE_ECHOUEE");
+            // enregistrerAudit(contexte, "PERSISTANCE",
+// (commented out — duplicate audit)
 
             if (contexte.isInterrompu()) {
                 log.warn("Pipeline interrompu après Stage 5 — {}", contexte.getRaisonArret());

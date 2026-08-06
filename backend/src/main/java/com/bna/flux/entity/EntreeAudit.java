@@ -77,6 +77,8 @@ public class EntreeAudit {
      */
     @NotNull(message = "La transaction est obligatoire")
     @ManyToOne(fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "transaction_id", nullable = false)
     private Transaction transaction;
 

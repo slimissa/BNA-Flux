@@ -52,6 +52,7 @@ import java.util.Map;
 @Slf4j
 @Service
 public class ServiceAudit {
+    private static final java.time.format.DateTimeFormatter HASH_DTF = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
 
     private final EntreeAuditRepository entreeAuditRepository;
     private final ObjectMapper objectMapper;
@@ -161,7 +162,7 @@ public class ServiceAudit {
                     + "|" + (entree.getEtape() != null ? entree.getEtape() : "")
                     + "|" + (entree.getAction() != null ? entree.getAction() : "")
                     + "|" + (entree.getDetail() != null ? entree.getDetail() : "")
-                    + "|" + (entree.getHorodatage() != null ? entree.getHorodatage().toString() : "")
+                    + "|" + (entree.getHorodatage() != null ? entree.getHorodatage().format(HASH_DTF) : "")
                     + "|" + (entree.getOperateur() != null ? entree.getOperateur() : "");
 
             MessageDigest digest = MessageDigest.getInstance(algorithmeHash);
@@ -290,7 +291,7 @@ public class ServiceAudit {
                     + "|" + (entree.getEtape() != null ? entree.getEtape() : "")
                     + "|" + (entree.getAction() != null ? entree.getAction() : "")
                     + "|" + (entree.getDetail() != null ? entree.getDetail() : "")
-                    + "|" + (entree.getHorodatage() != null ? entree.getHorodatage().toString() : "")
+                    + "|" + (entree.getHorodatage() != null ? entree.getHorodatage().format(HASH_DTF) : "")
                     + "|" + (entree.getOperateur() != null ? entree.getOperateur() : "");
 
             MessageDigest digest = MessageDigest.getInstance(algorithmeHash);
