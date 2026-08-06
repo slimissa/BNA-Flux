@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { HttpClient } from "@angular/common/http";
+import { Router } from "@angular/router";
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -21,7 +22,7 @@ import { RouterModule } from '@angular/router';
       <div *ngIf="erreur()" style="color:#e74c3c;padding:16px;background:rgba(231,76,60,0.1);border-radius:8px;margin-bottom:16px">{{ erreur() }}</div>
 
       <div *ngIf="!chargement() && transactions().length" style="display:flex;flex-direction:column;gap:8px">
-        <div *ngFor="let t of transactions()" 
+        <div *ngFor="let t of transactions()" [routerLink]="['/transactions', t.id]" style="cursor:pointer" 
              style="background:#162840;border:1px solid rgba(74,158,255,0.15);border-radius:10px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
           <div>
             <div style="font-family:monospace;color:#4a9eff;font-size:13px">{{ t.referenceTransaction }}</div>
@@ -39,6 +40,7 @@ import { RouterModule } from '@angular/router';
 })
 export class ListeTransactionsComposant implements OnInit {
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   readonly transactions = signal<any[]>([]);
   readonly chargement = signal(true);
   readonly erreur = signal<string | null>(null);
