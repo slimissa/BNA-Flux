@@ -244,26 +244,7 @@ public class MoteurRegles {
      */
     private StandardEvaluationContext construireContexte(Transaction transaction) {
         StandardEvaluationContext contexte = new StandardEvaluationContext();
-
-        // Variables de la transaction
-        contexte.setVariable("montant", transaction.getMontant());
-        contexte.setVariable("codeDevise", transaction.getCodeDevise());
-        contexte.setVariable("typeTransaction",
-                transaction.getTypeTransaction() != null ? transaction.getTypeTransaction().name() : null);
-        contexte.setVariable("canal",
-                transaction.getCanal() != null ? transaction.getCanal().name() : null);
-        contexte.setVariable("paysOrigine", transaction.getPaysOrigine());
-        contexte.setVariable("categorieContrepartie",
-                transaction.getCategorieContrepartie() != null
-                        ? transaction.getCategorieContrepartie().name() : null);
-        contexte.setVariable("ribSource", transaction.getRibSource());
-        contexte.setVariable("ribDestination", transaction.getRibDestination());
-        contexte.setVariable("scoreRisque", transaction.getScoreRisque());
-
-        // Valeurs utiles supplémentaires
-        contexte.setVariable("dateTransaction", transaction.getDateTransaction());
-        contexte.setVariable("description", transaction.getDescription());
-
+        contexte.setRootObject(transaction);
         return contexte;
     }
 
