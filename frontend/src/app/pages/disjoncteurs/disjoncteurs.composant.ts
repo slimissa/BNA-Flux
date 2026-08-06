@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { CommonModule } from "@angular/common";
+import { HttpClient } from "@angular/common/http";
 
 @Component({
   selector: 'bna-disjoncteurs',
@@ -61,13 +61,9 @@ export class DisjoncteursComposant implements OnInit {
   readonly chargement = signal(true);
   stats: any = null;
 
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('bna_token_acces');
-    return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-  }
 
   ngOnInit(): void {
-    this.http.get('/api/disjoncteurs', { headers: this.getHeaders() }).subscribe({
+    this.http.get('/api/disjoncteurs', ).subscribe({
       next: (data: any) => {
         this.disjoncteurs.set(data.disjoncteurs || []);
         this.stats = data.statistiques;

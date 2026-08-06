@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { CommonModule } from "@angular/common";
+import { HttpClient } from "@angular/common/http";
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -46,16 +46,12 @@ export class TableauBordComposant implements OnInit {
     { label: 'Score moyen', valeur: '0.0' },
   ];
 
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('bna_token_acces');
-    return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-  }
 
   ngOnInit(): void {
     const user = localStorage.getItem('bna_utilisateur');
     if (user) this.utilisateur = JSON.parse(user);
     
-    this.http.get('/api/tableau-bord/statistiques', { headers: this.getHeaders() }).subscribe({
+    this.http.get('/api/tableau-bord/statistiques', ).subscribe({
       next: (data: any) => {
         if (data?.statistiques) {
           this.stats[0].valeur = data.statistiques.transactionsTotal || 0;

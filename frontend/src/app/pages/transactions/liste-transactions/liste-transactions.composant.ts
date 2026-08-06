@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { CommonModule } from "@angular/common";
+import { HttpClient } from "@angular/common/http";
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -43,10 +43,6 @@ export class ListeTransactionsComposant implements OnInit {
   readonly chargement = signal(true);
   readonly erreur = signal<string | null>(null);
 
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('bna_token_acces');
-    return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-  }
 
   ngOnInit(): void {
     this.charger();
@@ -54,7 +50,7 @@ export class ListeTransactionsComposant implements OnInit {
 
   charger(): void {
     this.chargement.set(true);
-    this.http.get('/api/transactions?page=0&taille=20&tri=dateTransaction,desc', { headers: this.getHeaders() }).subscribe({
+    this.http.get('/api/transactions?page=0&taille=20&tri=dateTransaction,desc', ).subscribe({
       next: (data: any) => {
         this.transactions.set(data.donnees || []);
         this.chargement.set(false);
