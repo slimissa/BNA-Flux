@@ -152,6 +152,9 @@ public class EntreeAudit {
     @Column(name = "hash_courant", length = 64, nullable = false)
     private String hashCourant;
 
+    @Column(length = 500)
+    private String hashInput;
+
     /**
      * Horodatage de l'entrée d'audit.
      * <p>

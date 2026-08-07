@@ -50,6 +50,7 @@ import java.util.List;
  *   <tr><td>/swagger-ui/**</td><td>GET</td><td>Public</td></tr>
  *   <tr><td>/api-docs/**</td><td>GET</td><td>Public</td></tr>
  *   <tr><td>/h2-console/**</td><td>*</td><td>Public (dev only)</td></tr>
+ *   <tr><td>/ws/**</td><td>*</td><td>Public (WebSocket upgrade)</td></tr>
  *   <tr><td>/api/transactions/**</td><td>*</td><td>OPERATEUR, SUPERVISEUR, ADMIN</td></tr>
  *   <tr><td>/api/regles/**</td><td>GET</td><td>OPERATEUR, SUPERVISEUR, ADMIN</td></tr>
  *   <tr><td>/api/regles/**</td><td>POST, PUT, DELETE</td><td>SUPERVISEUR, ADMIN</td></tr>
@@ -131,6 +132,7 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/api-docs/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/ws/**").permitAll()
 
                 // --- Endpoints protégés — Tous rôles ---
                 .requestMatchers(HttpMethod.GET, "/api/transactions/**").hasAnyRole("OPERATEUR", "SUPERVISEUR", "ADMIN")

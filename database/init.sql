@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS entrees_audit (
     detail VARCHAR(2000),
     hash_precedent VARCHAR(64),
     hash_courant VARCHAR(64) NOT NULL,
+    hash_input VARCHAR(500),
     horodatage TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     operateur VARCHAR(150) NOT NULL DEFAULT 'SYSTEME'
 );
@@ -178,6 +179,7 @@ CREATE INDEX IF NOT EXISTS idx_alertes_date ON alertes(date_creation DESC);
 
 -- Entrées d'audit — Recherche par transaction
 CREATE INDEX IF NOT EXISTS idx_audit_transaction ON entrees_audit(transaction_id);
+CREATE INDEX IF NOT EXISTS idx_audit_hash_input ON entrees_audit(hash_input);
 
 -- Entrées d'audit — Recherche par date
 CREATE INDEX IF NOT EXISTS idx_audit_date ON entrees_audit(horodatage DESC);

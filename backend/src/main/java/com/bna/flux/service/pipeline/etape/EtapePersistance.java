@@ -7,7 +7,9 @@ import com.bna.flux.repository.AlerteRepository;
 import com.bna.flux.repository.TransactionRepository;
 import com.bna.flux.service.MoteurRegles.RegleDeclenchee;
 import com.bna.flux.service.ServiceAudit;
+import com.bna.flux.dto.NotificationWebSocket;
 import com.bna.flux.service.ServiceEmail;
+import com.bna.flux.service.ServiceNotificationWebSocket;
 import com.bna.flux.service.pipeline.ContextePipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -61,6 +63,7 @@ public class EtapePersistance {
     private final AlerteRepository alerteRepository;
     private final ServiceAudit serviceAudit;
     private final ServiceEmail serviceEmail;
+    private final ServiceNotificationWebSocket serviceNotificationWebSocket;
 
     /**
      * Constructeur avec injection de dépendances.
@@ -73,11 +76,13 @@ public class EtapePersistance {
     public EtapePersistance(TransactionRepository transactionRepository,
                             AlerteRepository alerteRepository,
                             ServiceAudit serviceAudit,
-                            ServiceEmail serviceEmail) {
+                            ServiceEmail serviceEmail,
+                            ServiceNotificationWebSocket serviceNotificationWebSocket) {
         this.transactionRepository = transactionRepository;
         this.alerteRepository = alerteRepository;
         this.serviceAudit = serviceAudit;
         this.serviceEmail = serviceEmail;
+        this.serviceNotificationWebSocket = serviceNotificationWebSocket;
     }
 
     // Exécution de l'étape
@@ -120,13 +125,16 @@ public class EtapePersistance {
                         alertes.size(), transactionSauvegardee.getReferenceTransaction());
             }
 
-            // 5. Enregistrer l'entrée d'audit PERSISTANCE
+            // 5. Notification WebSocket — alerter les superviseurs en temps réel
+            envoyerNotificationWebSocket(transactionSauvegardee);
+
+            // 6. Enregistrer l'entrée d'audit PERSISTANCE
             enregistrerAuditPersistance(transactionSauvegardee, alertes);
 
-            // 6. Envoyer les emails d'alerte (asynchrone)
+            // 7. Envoyer les emails d'alerte (asynchrone)
             envoyerEmailsAlertes(alertes, transactionSauvegardee);
 
-            // 7. Envoyer une notification si un disjoncteur s'est ouvert
+            // 8. Envoyer une notification si un disjoncteur s'est ouvert
             notifierOuvertureDisjoncteur(contexte, transactionSauvegardee);
 
             // Succès
@@ -298,4 +306,32 @@ public class EtapePersistance {
             }
         }
     }
+
+    /**
+     * Envoie une notification WebSocket selon le statut de la transaction.
+     *
+     * @param transaction la transaction sauvegardée
+     */
+    private void envoyerNotificationWebSocket(Transaction transaction) {
+        try {
+            NotificationWebSocket notification = switch (transaction.getStatut()) {
+                case BLOQUE -> NotificationWebSocket.transactionBloquee(
+                        transaction.getId(),
+                        transaction.getScoreRisque().intValue(),
+                        transaction.getReferenceTransaction());
+                case SURVEILLE -> NotificationWebSocket.transactionSurveillee(
+                        transaction.getId(),
+                        transaction.getScoreRisque().intValue(),
+                        transaction.getReferenceTransaction());
+                default -> null;
+            };
+
+            if (notification != null) {
+                serviceNotificationWebSocket.diffuserAlerte(notification);
+            }
+        } catch (Exception e) {
+            log.warn("Erreur lors de l'envoi de la notification WebSocket : {}", e.getMessage());
+        }
+    }
+
 }

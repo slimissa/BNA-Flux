@@ -101,7 +101,7 @@ public class ServiceAudit {
 
         // Récupérer la dernière entrée pour obtenir le hash précédent
         EntreeAudit derniereEntree = entreeAuditRepository.findLastByTransactionId(transaction.getId());
-        String hashPrecedent = (derniereEntree != null) ? derniereEntree.getHashCourant() : null;
+        String hashPrecedent = (derniereEntree != null) ? derniereEntree.getHashCourant() : "0";
 
         // Créer l'entrée d'audit
         EntreeAudit entree = new EntreeAudit(transaction, etape, action, detail, operateur);
@@ -157,14 +157,15 @@ public class ServiceAudit {
      */
     private String calculerHash(EntreeAudit entree) {
         try {
-            String donnees = (entree.getHashPrecedent() != null ? entree.getHashPrecedent() : "")
+            String donnees = (entree.getHashPrecedent() != null ? entree.getHashPrecedent() : "0")
                     + "|" + (entree.getTransaction() != null ? entree.getTransaction().getId() : "null")
                     + "|" + (entree.getEtape() != null ? entree.getEtape() : "")
                     + "|" + (entree.getAction() != null ? entree.getAction() : "")
                     + "|" + (entree.getDetail() != null ? entree.getDetail() : "")
-                    + "|" + (entree.getHorodatage() != null ? entree.getHorodatage().format(HASH_DTF) : "")
-                    + "|" + (entree.getOperateur() != null ? entree.getOperateur() : "");
+                    + "|" + (entree.getHorodatage() != null ? entree.getHorodatage().toString() : "")
+                    + "|" + (entree.getOperateur() != null ? entree.getOperateur() : "SYSTEM");
 
+            entree.setHashInput(donnees);
             MessageDigest digest = MessageDigest.getInstance(algorithmeHash);
             byte[] hashBytes = digest.digest(donnees.getBytes(StandardCharsets.UTF_8));
 
@@ -286,13 +287,18 @@ public class ServiceAudit {
      */
     private String recalculerHash(EntreeAudit entree) {
         try {
-            String donnees = (entree.getHashPrecedent() != null ? entree.getHashPrecedent() : "")
-                    + "|" + (entree.getTransaction() != null ? entree.getTransaction().getId() : "null")
-                    + "|" + (entree.getEtape() != null ? entree.getEtape() : "")
-                    + "|" + (entree.getAction() != null ? entree.getAction() : "")
-                    + "|" + (entree.getDetail() != null ? entree.getDetail() : "")
-                    + "|" + (entree.getHorodatage() != null ? entree.getHorodatage().format(HASH_DTF) : "")
-                    + "|" + (entree.getOperateur() != null ? entree.getOperateur() : "");
+            String donnees;
+            if (entree.getHashInput() != null && !entree.getHashInput().isEmpty()) {
+                donnees = entree.getHashInput();
+            } else {
+                donnees = (entree.getHashPrecedent() != null ? entree.getHashPrecedent() : "0")
+                        + "|" + (entree.getTransaction() != null ? entree.getTransaction().getId() : "null")
+                        + "|" + (entree.getEtape() != null ? entree.getEtape() : "")
+                        + "|" + (entree.getAction() != null ? entree.getAction() : "")
+                        + "|" + (entree.getDetail() != null ? entree.getDetail() : "")
+                        + "|" + (entree.getHorodatage() != null ? entree.getHorodatage().toString() : "")
+                        + "|" + (entree.getOperateur() != null ? entree.getOperateur() : "SYSTEM");
+            }
 
             MessageDigest digest = MessageDigest.getInstance(algorithmeHash);
             byte[] hashBytes = digest.digest(donnees.getBytes(StandardCharsets.UTF_8));
