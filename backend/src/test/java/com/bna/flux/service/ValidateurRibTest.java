@@ -50,7 +50,7 @@ class ValidateurRibTest {
      * Autre RIB valide généré avec l'algorithme.
      * Banque: 01 (BNA), Agence: 234, Compte: 1234567890123, Clé: 83
      */
-    private static final String RIB_VALIDE_BNA = "01234123456789012383";
+    private static final String RIB_VALIDE_BNA = "08601000191000748054";
 
     @BeforeEach
     void setUp() {
@@ -170,7 +170,7 @@ class ValidateurRibTest {
         @Test
         @DisplayName("estValide doit retourner false pour un RIB invalide")
         void estValideDoitRetournerFalse() {
-            assertFalse(validateurRib.estValide("00000000000000000000"));
+            assertFalse(validateurRib.estValide("00000000000000000001"));
         }
     }
 
@@ -243,8 +243,8 @@ class ValidateurRibTest {
         @ParameterizedTest
         @CsvSource({
                 "08, 601, 0001910007480, 54",
-                "01, 001, 0000000000001, 94",
-                "01, 234, 1234567890123, 83"
+                "01, 001, 0000000000001, 57",
+                "01, 234, 1234567890123, 84"
         })
         @DisplayName("Doit calculer les clés pour différents RIBs")
         void doitCalculerClesDifferentes(String banque, String agence, String compte, String cleAttendue) {

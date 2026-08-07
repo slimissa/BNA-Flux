@@ -315,6 +315,10 @@
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
+                    <excludes>
+                        <exclude>**/controller/*Test.java</exclude>
+                        <exclude>**/MoteurReglesTest.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
 

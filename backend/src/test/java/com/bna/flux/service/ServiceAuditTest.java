@@ -97,7 +97,7 @@ class ServiceAuditTest {
             assertEquals("RIB_VALIDE", entree.getAction());
             assertNotNull(entree.getHashCourant());
             assertEquals(64, entree.getHashCourant().length(), "Le hash SHA-256 doit faire 64 caractères hex");
-            assertNull(entree.getHashPrecedent(), "La première entrée n'a pas de hash précédent");
+            assertEquals("0", entree.getHashPrecedent(), "La premiere entree a hashPrecedent = 0");
         }
 
         @Test
@@ -335,7 +335,7 @@ class ServiceAuditTest {
             entree.setHashPrecedent(hashPrecedent);
 
             // Générer un hash réaliste (SHA-256 simulé)
-            String donnees = (entree.getHashPrecedent() != null ? entree.getHashPrecedent() : "")
+            String donnees = (entree.getHashPrecedent() != null ? entree.getHashPrecedent() : "0")
                     + "|" + transaction.getId()
                     + "|" + entree.getEtape()
                     + "|" + entree.getAction()
