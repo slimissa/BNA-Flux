@@ -32,21 +32,28 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
-      background: linear-gradient(135deg, #0d1b2a 0%, #1a3a5c 50%, #0d1b2a 100%);
-      color: #e0e6ed;
+      background: linear-gradient(180deg, #ffffff 0%, #f0f5f0 100%);
+      color: #1a3c2a; font-weight: 600;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      position: relative;
     }
 
     .app-loading-logo {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 24px;
-      animation: pulse 2s ease-in-out infinite;
+      position: absolute;
+      top: 24px;
+      left: 32px;
+      animation: none;
     }
 
-    .app-loading-logo svg {
-      width: 100%;
-      height: 100%;
+    .app-loading-logo img {
+      width: 100px;
+      height: auto;
+    }
+
+    .app-loading-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .app-loading-title {
@@ -54,17 +61,13 @@
       font-weight: 700;
       letter-spacing: 2px;
       margin-bottom: 8px;
-      background: linear-gradient(90deg, #4a9eff, #6db3ff, #4a9eff);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: shimmer 3s linear infinite;
+      color: #1a3c2a; font-weight: 600;
     }
 
     .app-loading-subtitle {
       font-size: 14px;
       font-weight: 400;
-      color: #8899aa;
+      color: #6b9e74;
       margin-bottom: 32px;
       letter-spacing: 1px;
     }
@@ -72,8 +75,8 @@
     .app-loading-spinner {
       width: 40px;
       height: 40px;
-      border: 3px solid rgba(74, 158, 255, 0.15);
-      border-top-color: #4a9eff;
+      border: 3px solid #e8f5e9;
+      border-top-color: #1a8c4e;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
@@ -82,7 +85,7 @@
       position: absolute;
       bottom: 24px;
       font-size: 12px;
-      color: #556677;
+      color: #8db894;
       letter-spacing: 0.5px;
     }
 
@@ -105,16 +108,13 @@
   <!-- Écran de chargement -->
   <div class="app-loading" id="app-loading">
     <div class="app-loading-logo">
-      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="2" y="2" width="76" height="76" rx="16" stroke="#4a9eff" stroke-width="3" fill="none"/>
-        <path d="M20 30L40 18L60 30V55C60 58.3 57.3 61 54 61H26C22.7 61 20 58.3 20 55V30Z" stroke="#4a9eff" stroke-width="2.5" fill="none"/>
-        <path d="M33 45L38 50L48 40" stroke="#6db3ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <rect x="35" y="20" width="10" height="2" rx="1" fill="#4a9eff" opacity="0.6"/>
-      </svg>
+      <img src="assets/top-logo.png" alt="BNA" />
     </div>
-    <div class="app-loading-title">BNA-FLUX</div>
-    <div class="app-loading-subtitle">Surveillance des Transactions Bancaires</div>
-    <div class="app-loading-spinner"></div>
+    <div class="app-loading-center">
+      <div class="app-loading-title">BNA-FLUX</div>
+      <div class="app-loading-subtitle">Surveillance des Transactions Bancaires</div>
+      <div class="app-loading-spinner"></div>
+    </div>
     <div class="app-loading-footer">Banque Nationale Agricole © 2026</div>
   </div>
 

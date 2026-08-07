@@ -153,7 +153,7 @@ export const COULEURS_GRAPHIQUE = {
   elevees: '#e67e22',
   moyennes: '#f1c40f',
   faibles: '#3498db',
-  scoreRisque: '#4a9eff',
+  scoreRisque: '#1a8c4e',
   grille: 'rgba(74, 158, 255, 0.08)',
-  texte: '#8899aa',
+  texte: '#7ba07e',
 };

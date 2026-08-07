@@ -17,11 +17,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
   </div>
   <div class="login-card">
     <div class="login-logo">
-      <svg width="56" height="56" viewBox="0 0 80 80">
-        <rect x="2" y="2" width="76" height="76" rx="20" stroke="#4a9eff" stroke-width="2.5" fill="none"/>
-        <path d="M18 28L40 14L62 28V56C62 60 58.5 63 54 63H26C21.5 63 18 60 18 56V28Z" stroke="#4a9eff" stroke-width="2.5" fill="none"/>
-        <path d="M31 46L37 52L50 40" stroke="#6db3ff" stroke-width="2.5" stroke-linecap="round"/>
-      </svg>
+      <img src="assets/bna-logo.png" alt="BNA" style="width:180px;height:auto" />
     </div>
     <h1>BNA-FLUX</h1>
     <p class="subtitle">Surveillance des Transactions Bancaires</p>
@@ -55,31 +51,31 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 </div>
 `,
   styles: [`
-.login-page { min-height:100vh; display:flex; align-items:center; justify-content:center; background:#0a111f; font-family:'Inter',sans-serif; position:relative; overflow:hidden; }
+.login-page { min-height:100vh; display:flex; align-items:center; justify-content:center; background:#08140c; font-family:'Inter',sans-serif; position:relative; overflow:hidden; }
 .login-bg { position:absolute; inset:0; }
 .orb { position:absolute; border-radius:50%; filter:blur(60px); opacity:0.1; }
-.orb-1 { width:400px; height:400px; background:#4a9eff; top:-10%; right:-5%; }
-.orb-2 { width:300px; height:300px; background:#6db3ff; bottom:-15%; left:-5%; }
-.orb-3 { width:250px; height:250px; background:#2d7dd2; top:50%; left:40%; }
-.login-card { position:relative; z-index:1; width:380px; max-width:92vw; padding:36px 28px 24px; background:#111d2e; border:1px solid rgba(74,158,255,0.2); border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.5); }
+.orb-1 { width:400px; height:400px; background:#1a8c4e; top:-10%; right:-5%; }
+.orb-2 { width:300px; height:300px; background:#2ecc71; bottom:-15%; left:-5%; }
+.orb-3 { width:250px; height:250px; background:#15703d; top:50%; left:40%; }
+.login-card { position:relative; z-index:1; width:380px; max-width:92vw; padding:36px 28px 24px; background:#0d2418; border:1px solid rgba(26,140,78,0.2); border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.5); }
 .login-logo { display:flex; justify-content:center; margin-bottom:12px; }
-.login-logo svg { filter:drop-shadow(0 0 8px rgba(74,158,255,0.3)); }
-h1 { text-align:center; font-size:24px; font-weight:700; color:#4a9eff; letter-spacing:2px; margin-bottom:2px; }
-.subtitle { text-align:center; font-size:12px; color:#5a6d80; margin-bottom:20px; }
-.error-msg { background:rgba(231,76,60,0.15); border:1px solid rgba(231,76,60,0.3); color:#e74c3c; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; }
-.success-msg { background:rgba(46,204,113,0.15); border:1px solid rgba(46,204,113,0.3); color:#2ecc71; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; }
+.login-logo svg { filter:drop-shadow(0 0 8px rgba(26,140,78,0.3)); }
+h1 { text-align:center; font-size:24px; font-weight:700; color:#1a8c4e; letter-spacing:2px; margin-bottom:2px; }
+.subtitle { text-align:center; font-size:12px; color:#6b9e74; margin-bottom:20px; }
+.error-msg { background:rgba(192,57,43,0.15); border:1px solid rgba(192,57,43,0.3); color:#e74c3c; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; }
+.success-msg { background:rgba(26,140,78,0.15); border:1px solid rgba(26,140,78,0.3); color:#2ecc71; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; }
 .field { margin-bottom:14px; }
-.field label { display:block; font-size:11px; font-weight:600; color:#5a6d80; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
-.field input { width:100%; padding:12px 14px; background:#0a111f; border:1px solid rgba(74,158,255,0.2); border-radius:8px; color:#e0e6ed; font-size:14px; font-family:inherit; outline:none; }
-.field input:focus { border-color:#4a9eff; }
-.btn-login { width:100%; padding:13px; margin-top:6px; background:linear-gradient(135deg,#4a9eff,#2d7dd2); border:none; border-radius:8px; color:white; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; }
+.field label { display:block; font-size:11px; font-weight:600; color:#6b9e74; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+.field input { width:100%; padding:12px 14px; background:#08140c; border:1px solid rgba(26,140,78,0.2); border-radius:8px; color:#d4edda; font-size:14px; font-family:inherit; outline:none; }
+.field input:focus { border-color:#1a8c4e; }
+.btn-login { width:100%; padding:13px; margin-top:6px; background:linear-gradient(135deg,#1a8c4e,#15703d); border:none; border-radius:8px; color:white; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; }
 .btn-login:disabled { opacity:0.5; }
-.divider { display:flex; align-items:center; gap:10px; margin:20px 0 14px; color:#3a4a5a; font-size:10px; text-transform:uppercase; }
-.divider::before,.divider::after { content:''; flex:1; height:1px; background:rgba(74,158,255,0.1); }
+.divider { display:flex; align-items:center; gap:10px; margin:20px 0 14px; color:#4a6e52; font-size:10px; text-transform:uppercase; }
+.divider::before,.divider::after { content:''; flex:1; height:1px; background:rgba(26,140,78,0.1); }
 .test-btns { display:flex; gap:8px; justify-content:center; }
-.test-btns button { padding:6px 14px; background:transparent; border:1px solid rgba(74,158,255,0.2); border-radius:20px; color:#5a6d80; font-size:11px; cursor:pointer; font-family:inherit; }
-.test-btns button:hover { border-color:#4a9eff; color:#4a9eff; }
-.footer { text-align:center; margin-top:18px; padding-top:14px; border-top:1px solid rgba(74,158,255,0.08); font-size:10px; color:#3a4a5a; }
+.test-btns button { padding:6px 14px; background:transparent; border:1px solid rgba(26,140,78,0.2); border-radius:20px; color:#6b9e74; font-size:11px; cursor:pointer; font-family:inherit; }
+.test-btns button:hover { border-color:#1a8c4e; color:#1a8c4e; }
+.footer { text-align:center; margin-top:18px; padding-top:14px; border-top:1px solid rgba(26,140,78,0.08); font-size:10px; color:#4a6e52; }
 `]
 })
 export class ConnexionComposant {
