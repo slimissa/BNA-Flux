@@ -8,5 +8,6 @@ export const routes: Routes = [
   { path: 'devises', loadComponent: () => import('./pages/devises/devises.composant').then(m => m.DevisesComposant) },
   { path: 'disjoncteurs', loadComponent: () => import('./pages/disjoncteurs/disjoncteurs.composant').then(m => m.DisjoncteursComposant) },
   { path: '', redirectTo: 'connexion', pathMatch: 'full' },
+  { path: 'testeur-regle', loadComponent: () => import('./pages/testeur-regle/testeur-regle.composant').then(m => m.TesteurRegleComposant) },
   { path: '**', redirectTo: 'connexion' },
 ];

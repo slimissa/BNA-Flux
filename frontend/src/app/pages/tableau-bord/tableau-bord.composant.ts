@@ -17,6 +17,7 @@ import { RouterModule } from '@angular/router';
       <div style="display:flex;gap:12px;margin-bottom:30px;flex-wrap:wrap">
         <a href="/transactions" style="padding:10px 20px;background:#162840;border:1px solid rgba(74,158,255,0.2);border-radius:8px;color:#4a9eff;text-decoration:none;font-weight:500"> Transactions</a>
         <a href="/devises" style="padding:10px 20px;background:#162840;border:1px solid rgba(74,158,255,0.2);border-radius:8px;color:#f39c12;text-decoration:none;font-weight:500">Devises</a>
+        <a href="/testeur-regle" style="padding:10px 20px;background:#162840;border:1px solid rgba(74,158,255,0.2);border-radius:8px;color:#2ecc71;text-decoration:none;font-weight:500">Testeur SpEL</a>
         <a href="/disjoncteurs" style="padding:10px 20px;background:#162840;border:1px solid rgba(74,158,255,0.2);border-radius:8px;color:#e74c3c;text-decoration:none;font-weight:500"> Disjoncteurs</a>
       </div>
 
