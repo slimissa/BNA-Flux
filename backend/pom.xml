@@ -250,6 +250,13 @@
             <version>2.0.3</version>
         </dependency>
 
+    
+        <!-- Spring Mail — Envoi d'emails SMTP pour les alertes -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
     </dependencies>
 
     <!-- Build                                                        -->
