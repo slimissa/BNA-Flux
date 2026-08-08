@@ -132,6 +132,14 @@
   }
   // Keyboard shortcuts for power users
   document.addEventListener("keydown", function(e) {
+    // Block shortcuts on login page and if not authenticated
+    if (window.location.pathname === "/connexion" || window.location.pathname === "/") {
+      return;
+    }
+    var token = localStorage.getItem("bna_token_acces");
+    if (!token) {
+      return;
+    }
     if (e.ctrlKey || e.metaKey) {
       switch(e.key.toLowerCase()) {
         case "d":
