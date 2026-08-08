@@ -142,7 +142,7 @@ export class TableauBordComposant implements OnInit {
     }, 300);
   }
 
-  deconnexion(): void {
+deconnexion(): void {
     localStorage.clear();
     window.location.href = '/connexion';
   }
