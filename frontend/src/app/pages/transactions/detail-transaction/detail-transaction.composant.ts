@@ -11,7 +11,10 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
     <div style="padding:40px;background:#0a1a10;min-height:100vh;color:#d4edda;font-family:'Inter',sans-serif">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px">
         <h1 style="color:#1a8c4e;margin:0"> Détail Transaction</h1>
-        <a href="/transactions" style="color:#1a8c4e;text-decoration:none;padding:8px 16px;border:1px solid rgba(26,140,78,0.3);border-radius:8px">← Retour</a>
+        <div style="display:flex;gap:12px;align-items:center">
+          <button (click)="exporterPDF()" style="padding:8px 16px;background:#1a8c4e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;font-family:inherit">📄 PDF</button>
+          <a href="/transactions" style="color:#1a8c4e;text-decoration:none;padding:8px 16px;border:1px solid rgba(26,140,78,0.3);border-radius:8px">← Retour</a>
+        </div>
       </div>
 
       <div *ngIf="chargement()" style="text-align:center;padding:40px;color:#6b9e74">Chargement...</div>
@@ -82,6 +85,26 @@ export class DetailTransactionComposant implements OnInit {
   readonly chargement = signal(true);
   readonly erreur = signal<string | null>(null);
   readonly auditResult = signal<any>(null);
+
+  exporterPDF(): void {
+    const id = window.location.pathname.split('/').pop();
+    const token = localStorage.getItem('bna_token_acces');
+    fetch('/api/transactions/' + id + '/export-pdf', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    })
+    .then(r => r.blob())
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'transaction-' + id + '.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(err => alert('Erreur: ' + err.message));
+  }
 
   infos: {label: string, valeur: string}[] = [];
 

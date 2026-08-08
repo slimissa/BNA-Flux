@@ -7,6 +7,7 @@ import com.bna.flux.dto.RequeteTransaction;
 import com.bna.flux.entity.Transaction;
 import com.bna.flux.exception.RibInvalideException;
 import com.bna.flux.service.ServiceAudit;
+import com.bna.flux.service.ServiceExportPdf;
 import com.bna.flux.service.ServiceTransaction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -70,12 +71,15 @@ import java.util.stream.Collectors;
 public class TransactionController {
 
     private final ServiceTransaction serviceTransaction;
+    private final ServiceExportPdf serviceExportPdf;
     private final ServiceAudit serviceAudit;
 
     public TransactionController(ServiceTransaction serviceTransaction,
-                                  ServiceAudit serviceAudit) {
+                                  ServiceAudit serviceAudit,
+                                  ServiceExportPdf serviceExportPdf) {
         this.serviceTransaction = serviceTransaction;
         this.serviceAudit = serviceAudit;
+        this.serviceExportPdf = serviceExportPdf;
     }
 
     // POST /api/transactions — Soumettre une transaction
@@ -428,4 +432,19 @@ public class TransactionController {
 
         return Sort.by(direction, champ);
     }
+
+    @GetMapping("/{id}/export-pdf")
+    @PreAuthorize("hasAnyRole('OPERATEUR', 'SUPERVISEUR', 'ADMIN')")
+    @Operation(summary = "Exporter en PDF", description = "Genere un rapport PDF complet avec piste d'audit SHA-256")
+    public ResponseEntity<byte[]> exporterPdf(@PathVariable Long id) {
+        log.info("GET /api/transactions/{}/export-pdf", id);
+        byte[] pdf = serviceExportPdf.genererPdf(id);
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_TYPE, 
+                        org.springframework.http.MediaType.APPLICATION_PDF_VALUE)
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=transaction-" + id + ".pdf")
+                .body(pdf);
+    }
+
 }

@@ -242,6 +242,14 @@
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
 
+    
+        <!-- OpenPDF — Génération de rapports PDF -->
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+            <version>2.0.3</version>
+        </dependency>
+
     </dependencies>
 
     <!-- Build                                                        -->

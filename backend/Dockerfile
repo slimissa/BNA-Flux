@@ -77,6 +77,7 @@ COPY --from=build /app/target/bna-flux.jar app.jar
 # de les surcharger facilement sans rebuild
 COPY --from=build /app/target/classes/devises.json /app/resources/devises.json
 COPY --from=build /app/target/classes/regles-par-defaut.json /app/resources/regles-par-defaut.json
+COPY --from=build /app/target/classes/bna-logo.png /app/resources/bna-logo.png
 
 # Port exposé
 EXPOSE 8080
