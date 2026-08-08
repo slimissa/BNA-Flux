@@ -87,6 +87,10 @@
       letter-spacing: 0.5px;
     }
 
+    @keyframes bnaShimmer {
+      0%, 100% { opacity: 1; filter: brightness(1); }
+      50% { opacity: 0.85; filter: brightness(1.1) drop-shadow(0 0 4px rgba(26,140,78,0.3)); }
+    }
     @keyframes spin {
       to { transform: rotate(360deg); }
     }

@@ -31,6 +31,11 @@
     }
   });
   
+  // Inject pulse animation CSS
+  var styleEl = document.createElement("style");
+  styleEl.textContent = "@keyframes bnaPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); filter: drop-shadow(0 0 8px rgba(26,140,78,0.6)); } }";
+  document.head.appendChild(styleEl);
+
   function notifyTab() {
     if (document.hidden) {
       alertCount++;
@@ -102,6 +107,14 @@
             var n = JSON.parse(body);
             console.log("[WS] Alert: " + n.titre);
             notifyTab();
+            // Pulse the BNA logo on alert
+            var logos = document.querySelectorAll('img[src*="bna-logo"], img[src*="top-logo"]');
+            logos.forEach(function(logo) {
+              logo.style.animation = "none";
+              logo.offsetHeight; // trigger reflow
+              logo.style.animation = "bnaPulse 0.6s ease-in-out";
+              setTimeout(function() { logo.style.animation = ""; }, 600);
+            });
             playSound(n.niveau);
             var cl = {CRITIQUE:"#e74c3c",ELEVE:"#e67e22",MOYEN:"#f39c12",INFO:"#3498db"};
             var el = document.createElement("div");
