@@ -1,6 +1,6 @@
 # BNA-FLUX — Surveillance des Transactions Bancaires en Temps Réel
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.0-green)
 ![Java](https://img.shields.io/badge/java-21-orange)
 ![Spring Boot](https://img.shields.io/badge/spring--boot-3.3.0-green)
 ![Angular](https://img.shields.io/badge/angular-18-red)
@@ -48,6 +48,10 @@ Développé dans le cadre du stage d'été 2026 à la **Banque Nationale Agricol
 │  • Détail Transaction   │  4. Notation (score 0-100)       │
 │  • Devises              │  5. Persistance (audit SHA-256)  │
 │  • Disjoncteurs         │                                  │
+│  • Testeur SpEL         │  Notifications:                  │
+│  • Export PDF           │  • WebSocket STOMP               │
+│                         │  • Emails SMTP (HTML)            │
+│  Authentification JWT   │  • Documentation OpenAPI         │
 │                         │  Base de données: PostgreSQL 16   │
 │  Authentification JWT   │  (H2 en développement)           │
 └─────────────────────────────────────────────────────────────┘
@@ -97,6 +101,37 @@ Développé dans le cadre du stage d'été 2026 à la **Banque Nationale Agricol
 - Chaque étape du pipeline génère une entrée
 - Les entrées sont chaînées (hashPrecedent → hashCourant)
 - Vérification d'intégrité par recalcul
+
+### Notifications WebSocket (Temps Réel)
+- Alertes instantanées via WebSocket STOMP
+- Toast notifications dans le navigateur
+- Abonnement aux canaux : /topic/alertes, /topic/disjoncteurs
+- Reconnexion automatique en cas de déconnexion
+
+### Export PDF
+- Rapport professionnel avec logo BNA intégré
+- Détails de transaction, score, statut
+- Piste d'audit SHA-256 complète
+- Bouton de téléchargement sur la page de détail
+
+### Testeur d'Expressions SpEL
+- Interface interactive de validation d'expressions
+- Feedback instantané (✅ syntaxe valide / ❌ erreur)
+- Localisation précise des erreurs (position du caractère)
+- Variables disponibles affichées pour référence
+
+### Service Email (SMTP)
+- Emails HTML professionnels avec branding BNA
+- Alertes CRITIQUE : envoi immédiat asynchrone
+- Alertes ELEVE : envoi groupé toutes les 15 minutes
+- Console en développement, SMTP réel en production
+- Configuration par variables d'environnement
+
+### Documentation API (Swagger/OpenAPI)
+- Interface Swagger UI interactive (/swagger-ui.html)
+- Spécification OpenAPI 3.0 complète (/api-docs)
+- Tous les endpoints documentés avec exemples
+- Schémas de requêtes/réponses inclus
 
 ### Devises
 - 17 devises ISO 4217 supportées
@@ -234,13 +269,25 @@ docker compose down
 | GET | `/api/tableau-bord/tendance` | Tendance | Tous |
 | GET | `/api/tableau-bord/statistiques` | Stats rapides | Tous |
 
+### Export PDF
+| Méthode | Endpoint | Description | Rôle |
+|---------|----------|-------------|------|
+| GET | `/api/transactions/{id}/export-pdf` | Rapport PDF complet | Tous |
+
 ### Documentation
 | Endpoint | Description |
 |----------|-------------|
-| `/swagger-ui.html` | Interface Swagger |
-| `/api-docs` | Spécification OpenAPI |
+| `/swagger-ui.html` | Interface Swagger interactive |
+| `/api-docs` | Spécification OpenAPI 3.0 |
 | `/actuator/health` | Health check |
 | `/h2-console` | Console H2 (dev uniquement) |
+
+### Notifications WebSocket
+| Endpoint | Description |
+|----------|-------------|
+| `/ws` | Endpoint STOMP (SockJS fallback) |
+| `/topic/alertes` | Canal d'alertes en temps réel |
+| `/topic/disjoncteurs` | Canal de changement d'état disjoncteurs |
 
 ---
 
@@ -459,6 +506,10 @@ docker compose down -v
 | POSTGRES_PORT | 5433 | Port exposé |
 | BNA_JWT_SECRET | (auto) | Clé secrète JWT |
 | FRONTEND_URL | http://localhost | URL pour CORS |
+| SMTP_HOST | sandbox.smtp.mailtrap.io | Serveur SMTP |
+| SMTP_PORT | 2525 | Port SMTP |
+| SMTP_USERNAME | (vide) | Utilisateur SMTP |
+| SMTP_PASSWORD | (vide) | Mot de passe SMTP |
 
 ---
 
@@ -475,10 +526,13 @@ ng test
 ```
 
 ### Couverture
-- ✅ ValidateurRib — algorithme modulo 97
-- ✅ ServiceDisjoncteur — transitions d'état
-- ✅ ServiceAudit — chaîne de hachage
-- ✅ MoteurPipeline — orchestration
+- ✅ ValidateurRib — 41 tests (algorithme modulo 97)
+- ✅ ServiceDisjoncteur — 29 tests (transitions d'état)
+- ✅ ServiceAudit — 12 tests (chaîne de hachage SHA-256)
+- ✅ MoteurPipeline — 19 tests (orchestration 5 étapes)
+- ✅ PipelineIntegrationTest — 3 tests (flux complet API)
+- ✅ WebSocketNotificationTest — 4 tests (notifications temps réel)
+- ✅ **Total : 108 tests, 0 échecs**
 
 ---
 
