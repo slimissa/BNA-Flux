@@ -22,7 +22,7 @@ COPY . .
 
 # Build Angular en mode production
 # La configuration production est définie dans angular.json
-RUN npm run build -- --configuration=production
+RUN npx ng build --configuration=production
 
 # Vérifier que le build a bien généré les fichiers
 RUN ls -la dist/bna-flux-frontend/browser/index.html
