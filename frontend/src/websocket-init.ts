@@ -130,5 +130,48 @@
     w.onclose = function() { console.log("[WS] Closed"); setTimeout(c, 5000); };
     w.onerror = function() { console.warn("[WS] Error"); };
   }
+  // Keyboard shortcuts for power users
+  document.addEventListener("keydown", function(e) {
+    if (e.ctrlKey || e.metaKey) {
+      switch(e.key.toLowerCase()) {
+        case "d":
+          e.preventDefault();
+          window.location.href = "/tableau-bord";
+          break;
+        case "g":
+          e.preventDefault();
+          window.location.href = "/transactions";
+          break;
+        case "r":
+          e.preventDefault();
+          window.location.href = "/testeur-regle";
+          break;
+        case "p":
+          e.preventDefault();
+          var path = window.location.pathname;
+          if (path.indexOf("/transactions/") === 0) {
+            var id = path.split("/").pop();
+            var token = localStorage.getItem("bna_token_acces");
+            fetch("/api/transactions/" + id + "/export-pdf", {
+              headers: { "Authorization": "Bearer " + token }
+            }).then(function(r) { return r.blob(); }).then(function(b) {
+              var url = URL.createObjectURL(b);
+              var a = document.createElement("a");
+              a.href = url; a.download = "transaction-" + id + ".pdf";
+              a.click(); URL.revokeObjectURL(url);
+            });
+          }
+          break;
+        case "/":
+          e.preventDefault();
+          alert("Raccourcis clavier:\nCtrl+D = Tableau de bord\nCtrl+G = Transactions\nCtrl+R = Testeur SpEL\nCtrl+P = Export PDF\nCtrl+/ = Aide");
+          break;
+      }
+    }
+    if (e.key === "Escape") {
+      window.history.back();
+    }
+  });
+  
   c();
 })();
